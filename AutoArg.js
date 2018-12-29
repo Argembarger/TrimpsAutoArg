@@ -19,7 +19,7 @@ var autoArgEssenceFarm = new function() {
 };
 
 var autoArgStanceDance = new function() {
-  if(autoArgEssenceFarm() == true) return;
+  if(this.autoArgEssenceFarm() == true) return;
   // Very basic stancedancing
   else if(game.global.formation == 2 && game.global.soldierHealth <= game.global.soldierHealthMax * 0.125) {
     setFormation('0');
@@ -47,7 +47,7 @@ var autoArgBoneFarm = new function() {
   else {
     // If in world and fighting, go to map screen.
     if(!game.global.preMapsActive && !game.global.mapsActive && game.global.fighting) {
-      autoArgMapAtZoneAndCell(game.global.world, 100);
+      this.autoArgMapAtZoneAndCell(game.global.world, 100);
     }
     // If on map screen, try to farm.
     else if(game.global.preMapsActive && !game.global.mapsActive && !game.global.fighting) {
@@ -71,8 +71,8 @@ var autoArgBoneFarm = new function() {
 };
   
 setInterval(new function() {
-  autoArgStanceDance();
-  autoArgBoneFarm();
+  this.autoArgStanceDance();
+  this.autoArgBoneFarm();
 }, 100); // 100 ms interval
 
 

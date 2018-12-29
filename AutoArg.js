@@ -63,7 +63,7 @@ class AutoArg {
 			}
 		}
 		
-		selectMap('map' + game.global.mapsOwned); // Select latest map
+		selectMap(game.global.mapsOwnedArray[game.global.mapsOwnedArray.length - 1].id); // Select latest map
 		runMap();
         }
       }

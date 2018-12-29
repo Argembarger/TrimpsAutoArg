@@ -54,14 +54,15 @@ class AutoArg {
           // If can't buy preset 1, buy preset 2, else buy preset 3, else give up and farm.
 		if(game.global.selectedMapPreset != 1) {
 			selectAdvMapsPreset(1);
+		}
+		if(buyMap() < 0) {
+			selectAdvMapsPreset(2);
 			if(buyMap() < 0) {
-				selectAdvMapsPreset(2);
-				if(buyMap() < 0) {
-					selectAdvMapsPreset(3);
-					buyMap()
-				}
+				selectAdvMapsPreset(3);
+				buyMap();
 			}
 		}
+		
 		selectMap('map' + game.global.mapsOwned); // Select latest map
 		runMap();
         }

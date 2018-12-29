@@ -7,7 +7,7 @@ var autoArgMapAtZoneAndCell = new function(_zone, _cell) {
       mapsClicked();
     }
   }
-}
+};
 
 var autoArgEssenceFarm = new function() {
   // Uses S if there is essence on the map
@@ -16,7 +16,7 @@ var autoArgEssenceFarm = new function() {
     return true;
   }
   return false;
-}
+};
 
 var autoArgStanceDance = new function() {
   if(autoArgEssenceFarm() == true) return;
@@ -30,7 +30,7 @@ var autoArgStanceDance = new function() {
   else if(game.global.formation == 1 && game.global.soldierHealth == game.global.soldierHealthMax) {
     setFormation('2');
   }
-}
+};
 
 var autoArgBoneFarm = new function() {
   // If have been in map for 45 mins, go back to world.
@@ -68,7 +68,7 @@ var autoArgBoneFarm = new function() {
       runMap();
     }
   }
-}
+};
   
 setInterval(new function() {
   autoArgStanceDance();

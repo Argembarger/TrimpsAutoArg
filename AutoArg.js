@@ -1,7 +1,7 @@
 // AutoArg -- manually injected action triggering
 // After loading Trimps, paste the following code into your console:
 // (SetInterval is at the bottom and controls what actually happens)
-var autoArgMapAtZoneAndCell = function(_zone, _cell) {
+var autoArgMapAtZoneAndCell = new function(_zone, _cell) {
   if(game.global.world == _zone && !game.global.preMapsActive && !game.global.mapsActive) {
     if(game.global.lastClearedCell + 2 == _cell) {
       mapsClicked();
@@ -9,7 +9,7 @@ var autoArgMapAtZoneAndCell = function(_zone, _cell) {
   }
 }
 
-var autoArgEssenceFarm = function() {
+var autoArgEssenceFarm = new function() {
   // Uses S if there is essence on the map
   if(!game.global.mapsActive && countRemainingEssenceDrops() > 0) {
     setFormation('4'); // S
@@ -18,7 +18,7 @@ var autoArgEssenceFarm = function() {
   return false;
 }
 
-var autoArgStanceDance = function() {
+var autoArgStanceDance = new function() {
   if(autoArgEssenceFarm() == true) return;
   // Very basic stancedancing
   else if(game.global.formation == 2 && game.global.soldierHealth <= game.global.soldierHealthMax * 0.125) {
@@ -32,7 +32,7 @@ var autoArgStanceDance = function() {
   }
 }
 
-var autoArgBoneFarm = function() {
+var autoArgBoneFarm = new function() {
   // If have been in map for 45 mins, go back to world.
   if(((getGameTime() - game.global.zoneStarted) / 1000) > (45 * 60)) {		
     // If in map and not switching to maps

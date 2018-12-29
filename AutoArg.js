@@ -52,26 +52,25 @@ class AutoArg {
         else if(game.global.preMapsActive && !game.global.mapsActive && !game.global.fighting) {
           // Presets are used as priorities in this system.
           // If can't buy preset 1, buy preset 2, else buy preset 3, else give up and farm.
-          let mapsOwnedBeforeFarming = game.global.mapsOwned;
-          selectAdvMapsPreset(1);
-          buyMap(); // try to buy with current settings;
-          if(game.global.mapsOwned == mapsOwnedBeforeFarming) {
-            selectAdvMahpsPreset(2);
-            buyMap();
-            if(game.global.mapsOwned == mapsOwnedBeforeFarming) {
-              selectAdvMahpsPreset(3);
-              buyMap();
-            }
-          }
-          selectMap('map' + game.global.mapsOwned); // Select latest map
-          runMap();
+		if(game.global.selectedMapPreset != 1) {
+			selectAdvMapsPreset(1);
+			if(buyMap() < 0) {
+				selectAdvMapsPreset(2);
+				if(buyMap() < 0) {
+					selectAdvMapsPreset(3);
+					buyMap()
+				}
+			}
+		}
+		selectMap('map' + game.global.mapsOwned); // Select latest map
+		runMap();
         }
       }
     };
   }
 }
 var autoArg = new AutoArg(); 
-setInterval(new function() {
+setInterval(function() {
   autoArg.autoArgStanceDance();
   autoArg.autoArgBoneFarm();
 }, 100); // 100 ms interval

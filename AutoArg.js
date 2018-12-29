@@ -31,7 +31,7 @@ class AutoArg {
         setFormation('2');
       }
     };
-    this.autoArgBoneFarm = new function() {
+    this.autoArgBoneFarm = function() {
       // If have been in map for 45 mins, go back to world.
       if(((getGameTime() - game.global.zoneStarted) / 1000) > (45 * 60)) {		
         // If in map and not switching to maps

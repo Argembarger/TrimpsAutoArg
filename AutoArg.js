@@ -32,6 +32,8 @@ class AutoArg {
       }
     };
     this.autoArgBoneFarm = function() {
+      // DO NOT ATTEMPT IF LESS THAN ZONE 5
+      if(game.global.world < 6) return;
       // If have been in map for 45 mins, go back to world.
       if(((getGameTime() - game.global.zoneStarted) / 1000) > (45 * 60)) {		
         // If in map and not switching to maps

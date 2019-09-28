@@ -1,8 +1,11 @@
 {
     "compilerOptions": {
         "target": "es5",
-        "module": "commonjs",
-        "outDir": "PasteMeInUrConsole"
+        "module": "system",
+        "outDir": "PasteMeInUrConsole",
+        "strict": true,
+        "outFile": "PasteMeInUrConsole/AutoArg.js"
     },
-    "include": ["AutoArg.ts"]
+    "include": ["AutoArg.ts", "AutoArgBoneFarmer.ts", "AutoArgStanceDancer.ts"],
+    "compileOnSave": true
 }

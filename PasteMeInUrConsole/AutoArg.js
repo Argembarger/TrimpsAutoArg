@@ -1,30 +1,23 @@
-// USEFUL VARIABLES AND FUNCTIONS
-// Current zone number: game.global.world
-// Current world cell: (game.global.lastClearedCell + 2)
-// Current map cell: (game.global.lastClearedMapCell + 2)
-// On map menu but not in map: game.global.preMapsActive
-// Time since zone in seconds: (getGameTime() - game.global.zoneStarted) / 1000
-// Click "m": mapsClicked();
-// setFormation('x'); where 0 = X, 1 = H, 2 = D, 3 = B, 4 = S
-// game.global.formation
-// game.global.soldierHealthMax // Matches current formation
-// game.global.soldierHealth
-// Print to console: console.log("string");
-// AutoArg -- manually injected action triggering
-// After loading Trimps, paste the following code into your console:
-// (SetInterval is at the bottom and controls what actually happens)
-var AutoArg = /** @class */ (function () {
-    function AutoArg() {
+"use strict";
+var __spreadArrays = (this && this.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+};
+var AutoArgBoneFarmer = /** @class */ (function () {
+    function AutoArgBoneFarmer() {
         this.boneFarmRoutine = -1;
         this.lastKnownBoneZone = -1;
         this.lastKnownBoneCount = -1;
         this.lastKnownBoneTime = -1;
         this.boneTraderButtonHTML = document.getElementById("boneBtnText");
+        this.boneFarmAlwaysRunMap = false;
+        this.boneFarmPresetOrder = [];
         this.boneFarmGoingToMap = false;
-        this.gatheringDarkEssence = false;
-        this.essenceSensed = false;
     }
-    AutoArg.prototype.StartBoneFarming = function (runMap) {
+    AutoArgBoneFarmer.prototype.StartBoneFarming = function (runMap) {
         var mapPresets = [];
         for (var _i = 1; _i < arguments.length; _i++) {
             mapPresets[_i - 1] = arguments[_i];
@@ -43,7 +36,10 @@ var AutoArg = /** @class */ (function () {
         if (bone_trade_btn_text.indexOf("Trade ") == -1 || bone_trade_btn_text.indexOf(" Bones", 6) == -1) {
             return "Bone trader button seems weird! Cannot proceed!";
         }
-        this.lastKnownBoneCount = this.CurrentBoneCount();
+        this.lastKnownBoneCount = -1;
+        if (this.boneTraderButtonHTML != null) {
+            this.lastKnownBoneCount = parseInt(this.boneTraderButtonHTML.innerText.substring("Trade ".length, this.boneTraderButtonHTML.innerText.indexOf(" Bones", 6)));
+        }
         if (this.lastKnownBoneCount == null || this.lastKnownBoneCount < 0) {
             return "Bone count was " + this.lastKnownBoneCount + "! Cannot proceed!";
         }
@@ -61,7 +57,7 @@ var AutoArg = /** @class */ (function () {
         this.boneFarmRoutine = setInterval(this.BoneFarmingLogic, 100);
         return "Now bone farming! Last bone drop zone: " + this.lastKnownBoneZone + ", current bone count: " + this.lastKnownBoneCount + ", last known bone drop time: " + this.lastKnownBoneTime;
     };
-    AutoArg.prototype.StopBoneFarming = function () {
+    AutoArgBoneFarmer.prototype.StopBoneFarming = function () {
         if (this.boneFarmRoutine < 0) {
             return "Not bone farming! Don't worry!";
         }
@@ -69,99 +65,8 @@ var AutoArg = /** @class */ (function () {
         this.boneFarmRoutine = -1;
         return "Stopped bone farming!";
     };
-    AutoArg.prototype.StartStanceDancing = function (healthThreshold) {
-        var formations = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            formations[_i - 1] = arguments[_i];
-        }
-        if (formations == null || formations == []) {
-            this.StopStanceDancing();
-            return;
-        }
-        var newFormations = [];
-        for (var i = 0; i < formations.length; i++) {
-            if (formations[i] < 0 || formations[i] > 4) {
-                continue;
-            }
-            newFormations.push(formations[i]);
-        }
-        if (healthThreshold < 0.01) {
-            healthThreshold = 0.01;
-        }
-        else if (healthThreshold > 0.99) {
-            healthThreshold = 0.99;
-        }
-        this.stanceDanceHealthThreshold = healthThreshold;
-        this.stanceDanceFormations = newFormations;
-        this.currStanceDanceFormationIndex = 0;
-        if (this.stanceDanceRoutine >= 0) {
-            return "Already stance-dancing! Updated health threshold to " + this.stanceDanceHealthThreshold + " and formations to " + this.stanceDanceFormations.toString();
-        }
-        else {
-            this.stanceDanceRoutine = setInterval(this.StanceDanceLogic, 100);
-            return "Now stance dancing with health threshold set to " + this.stanceDanceHealthThreshold + " and formations to " + this.stanceDanceFormations.toString();
-        }
-    };
-    AutoArg.prototype.StopStanceDancing = function () {
-        if (this.stanceDanceRoutine < 0) {
-            return "Not stance dancing!";
-        }
-        else {
-            clearInterval(this.stanceDanceRoutine);
-            this.stanceDanceRoutine = -1;
-        }
-    };
-    AutoArg.prototype.SetDarkEssenceGatherMode = function (shouldGather) {
-        this.gatheringDarkEssence = shouldGather;
-        this.essenceSensed = shouldGather;
-        if (shouldGather) {
-            if (this.darkEssenceGatherRoutine >= 0) {
-                return "Already gathering Dark Essence!";
-            }
-            else {
-                this.darkEssenceGatherRoutine = setInterval(this.DarkEssenceGatheringLogic, 100);
-                return "Gathering any Dark Essence! (Overrides any stance-dancing while in World cells)";
-            }
-        }
-        else {
-            if (this.darkEssenceGatherRoutine < 0) {
-                return "Not gathering Dark Essence! No worries!";
-            }
-            else {
-                clearInterval(this.darkEssenceGatherRoutine);
-                this.darkEssenceGatherRoutine = -1;
-                return "No longer (deliberately) gathering Dark Essence!";
-            }
-        }
-    };
-    AutoArg.prototype.DarkEssenceGatheringLogic = function () {
-        // Uses S if there is essence on the map
-        if (!game.global.mapsActive && countRemainingEssenceDrops() > 0) {
-            setFormation('4'); // S
-            this.essenceSensed = true;
-        }
-        else {
-            this.essenceSensed = false;
-        }
-    };
-    AutoArg.prototype.StanceDanceLogic = function () {
-        if (this.essenceSensed) {
-            return;
-        }
-        // Full Health case
-        if (game.global.soldierHealth == game.global.soldierHealthMax) {
-            this.currStanceDanceFormationIndex = 0;
-            setFormation(this.stanceDanceFormations[this.currStanceDanceFormationIndex].toString());
-        }
-        // Cycle through remaining formations as health threshold is reached
-        else if (this.currStanceDanceFormationIndex < this.stanceDanceFormations.length - 1
-            && game.global.soldierHealth <= game.global.soldierHealthMax * this.stanceDanceHealthThreshold) {
-            this.currStanceDanceFormationIndex++;
-            setFormation(this.stanceDanceFormations[this.currStanceDanceFormationIndex].toString());
-        }
-    };
     // All the bone farming logic. Checked once per 100 ticks
-    AutoArg.prototype.BoneFarmingLogic = function () {
+    AutoArgBoneFarmer.prototype.BoneFarmingLogic = function () {
         var secondsSinceLastBone = (getGameTime() - this.lastKnownBoneTime) / 1000;
         // BASE CASE: It has been more than 45 minutes since the last bone,
         // or else the last bone was found in a previous zone.
@@ -189,7 +94,10 @@ var AutoArg = /** @class */ (function () {
             }
             else { // Haven't found a bone yet.
                 // Try to detect a bone??
-                var currBoneCount = this.CurrentBoneCount();
+                var currBoneCount = -1;
+                if (this.boneTraderButtonHTML != null) {
+                    currBoneCount = parseInt(this.boneTraderButtonHTML.innerText.substring("Trade ".length, this.boneTraderButtonHTML.innerText.indexOf(" Bones", 6)));
+                }
                 if (currBoneCount > this.lastKnownBoneCount) {
                     this.lastKnownBoneCount = currBoneCount;
                     this.lastKnownBoneZone = game.global.world;
@@ -215,10 +123,7 @@ var AutoArg = /** @class */ (function () {
             }
         }
     };
-    AutoArg.prototype.CurrentBoneCount = function () {
-        return parseInt(this.boneTraderButtonHTML.innerText.substring("Trade ".length, this.boneTraderButtonHTML.innerText.indexOf(" Bones", 6)));
-    };
-    AutoArg.prototype.GoToMapAtZoneAndCell = function (_zone, _cell) {
+    AutoArgBoneFarmer.prototype.GoToMapAtZoneAndCell = function (_zone, _cell) {
         if (game.global.world == _zone && !game.global.preMapsActive && !game.global.mapsActive) {
             if (game.global.lastClearedCell + 2 == _cell) {
                 mapsClicked();
@@ -226,6 +131,164 @@ var AutoArg = /** @class */ (function () {
             }
         }
         return false;
+    };
+    return AutoArgBoneFarmer;
+}());
+var AutoArgStanceDancer = /** @class */ (function () {
+    function AutoArgStanceDancer() {
+        this.stanceDanceRoutine = -1;
+        this.gatheringDarkEssence = false;
+        this.essenceSensed = false;
+        this.isStanceDancing = false;
+        this.stanceDanceHealthThreshold = 0.5;
+        this.stanceDanceFormations = [];
+        this.currStanceDanceFormationIndex = 0;
+    }
+    AutoArgStanceDancer.prototype.StartStanceDancing = function (healthThreshold) {
+        var formations = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            formations[_i - 1] = arguments[_i];
+        }
+        if (formations == null || formations == []) {
+            return this.StopStanceDancing();
+        }
+        var newFormations = [];
+        for (var i = 0; i < formations.length; i++) {
+            if (formations[i] < 0 || formations[i] > 4) {
+                continue;
+            }
+            newFormations.push(formations[i]);
+        }
+        if (healthThreshold < 0.01) {
+            healthThreshold = 0.01;
+        }
+        else if (healthThreshold > 0.99) {
+            healthThreshold = 0.99;
+        }
+        this.stanceDanceHealthThreshold = healthThreshold;
+        this.stanceDanceFormations = newFormations;
+        this.currStanceDanceFormationIndex = 0;
+        this.isStanceDancing = true;
+        if (this.stanceDanceRoutine >= 0) {
+            return "Already stance-dancing! Updated health threshold to " + this.stanceDanceHealthThreshold + " and formations to " + this.stanceDanceFormations.toString();
+        }
+        else {
+            this.stanceDanceRoutine = setInterval(this.StanceDanceLogic, 100);
+            return "Now stance dancing with health threshold set to " + this.stanceDanceHealthThreshold + " and formations to " + this.stanceDanceFormations.toString();
+        }
+    };
+    AutoArgStanceDancer.prototype.StopStanceDancing = function () {
+        if (this.stanceDanceRoutine < 0 || !this.isStanceDancing) {
+            return "Wasn't stance-dancing!";
+        }
+        else {
+            this.isStanceDancing = false;
+            if (!this.gatheringDarkEssence) {
+                clearInterval(this.stanceDanceRoutine);
+                this.stanceDanceRoutine = -1;
+                return "Stopped stance-dancing.";
+            }
+            return "Stopped stance-dancing, but still gathering essence";
+        }
+    };
+    AutoArgStanceDancer.prototype.SetDarkEssenceGatherMode = function (shouldGather) {
+        if (this.gatheringDarkEssence && shouldGather) {
+            return "Already gathering Dark Essence!";
+        }
+        else if (!this.gatheringDarkEssence && !shouldGather) {
+            return "Wasn't gathering Dark Essence!";
+        }
+        this.gatheringDarkEssence = shouldGather;
+        this.essenceSensed = shouldGather;
+        if (shouldGather) {
+            if (this.stanceDanceRoutine >= 0) {
+                return "Now gathering Dark Essence in addition to stance-dancing!";
+            }
+            else {
+                this.stanceDanceRoutine = setInterval(this.StanceDanceLogic, 100);
+                return "Gathering any available Dark Essence!";
+            }
+        }
+        else {
+            if (this.stanceDanceRoutine < 0) {
+                return "Not gathering Dark Essence! No worries!";
+            }
+            else if (!this.isStanceDancing) {
+                clearInterval(this.stanceDanceRoutine);
+                this.stanceDanceRoutine = -1;
+                return "No longer (deliberately) gathering Dark Essence!";
+            }
+            return "No longer gathering essence, but still stance-dancing!";
+        }
+    };
+    AutoArgStanceDancer.prototype.StanceDanceLogic = function () {
+        if (this.gatheringDarkEssence) {
+            this.essenceSensed = !game.global.mapsActive && countRemainingEssenceDrops() > 0;
+            if (this.essenceSensed) {
+                setFormation('4');
+                return;
+            }
+        }
+        // Full Health case
+        if (game.global.soldierHealth == game.global.soldierHealthMax) {
+            this.currStanceDanceFormationIndex = 0;
+            setFormation(this.stanceDanceFormations[this.currStanceDanceFormationIndex].toString());
+        }
+        // Cycle through remaining formations as health threshold is reached
+        else if (this.currStanceDanceFormationIndex < this.stanceDanceFormations.length - 1
+            && game.global.soldierHealth <= game.global.soldierHealthMax * this.stanceDanceHealthThreshold) {
+            this.currStanceDanceFormationIndex++;
+            setFormation(this.stanceDanceFormations[this.currStanceDanceFormationIndex].toString());
+        }
+    };
+    return AutoArgStanceDancer;
+}());
+///<reference path="AutoArgBoneFarmer.ts" />
+///<reference path="AutoArgStanceDancer.ts" />
+// USEFUL VARIABLES AND FUNCTIONS
+// Current zone number: game.global.world
+// Current world cell: (game.global.lastClearedCell + 2)
+// Current map cell: (game.global.lastClearedMapCell + 2)
+// On map menu but not in map: game.global.preMapsActive
+// Time since zone in seconds: (getGameTime() - game.global.zoneStarted) / 1000
+// Click "m": mapsClicked();
+// setFormation('x'); where 0 = X, 1 = H, 2 = D, 3 = B, 4 = S
+// game.global.formation
+// game.global.soldierHealthMax // Matches current formation
+// game.global.soldierHealth
+// Print to console: console.log("string");
+// AutoArg -- manually injected action triggering
+// After loading Trimps, paste the following code into your console:
+// (SetInterval is at the bottom and controls what actually happens)
+var AutoArg = /** @class */ (function () {
+    function AutoArg() {
+        this.m_BoneFarmer = new AutoArgBoneFarmer();
+        this.m_StanceDancer = new AutoArgStanceDancer();
+    }
+    AutoArg.prototype.StartBoneFarming = function (runMap) {
+        var _a;
+        var mapPresets = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            mapPresets[_i - 1] = arguments[_i];
+        }
+        return (_a = this.m_BoneFarmer).StartBoneFarming.apply(_a, __spreadArrays([runMap], mapPresets));
+    };
+    AutoArg.prototype.StopBoneFarming = function () {
+        return this.m_BoneFarmer.StopBoneFarming();
+    };
+    AutoArg.prototype.StartStanceDancing = function (healthThreshold) {
+        var _a;
+        var formations = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            formations[_i - 1] = arguments[_i];
+        }
+        return (_a = this.m_StanceDancer).StartStanceDancing.apply(_a, __spreadArrays([healthThreshold], formations));
+    };
+    AutoArg.prototype.StopStanceDancing = function () {
+        return this.m_StanceDancer.StopStanceDancing();
+    };
+    AutoArg.prototype.SetDarkEssenceGatherMode = function (shouldGather) {
+        return this.m_StanceDancer.SetDarkEssenceGatherMode(shouldGather);
     };
     return AutoArg;
 }());

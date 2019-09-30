@@ -20,11 +20,6 @@ class AutoArgBoneFarmer {
     }
 
     public StartBoneFarming(runMap: boolean, mapPresets: number[]): string {
-        // DO NOT ATTEMPT IF LESS THAN ZONE 5
-        if(game.global.world < 6) { 
-            return "Cannot (yet) bone farm less than World 6, since you cannot map yet!"; 
-        }
-
         if(this.lastKnownBoneCount == -1) {
             this.lastKnownBoneCount = this.CurrentBoneCount();
 
@@ -72,7 +67,7 @@ class AutoArgBoneFarmer {
             this.lastKnownBoneTime = getGameTime();
             secondsSinceLastBone = 0;
         }
-        if(secondsSinceLastBone <= (45 * 60)) {
+        if(secondsSinceLastBone <= (45 * 60) && game.global.world > 5) {
             // MUST NOT MOVE ON
             this.boneFarmGoingToChamber = this.GoToMapAtZoneAndCell(game.global.world, 100);
         }

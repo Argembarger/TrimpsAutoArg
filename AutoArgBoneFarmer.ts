@@ -6,7 +6,7 @@ class AutoArgBoneFarmer {
     private boneTraderButtonHTML: HTMLElement | null;
     public boneFarmAlwaysRunMap: boolean;
     public boneFarmPresetOrder: number[];
-    private boneFarmGoingToMap: boolean;
+    private boneFarmGoingToChamber: boolean;
 
     constructor() {
         this.boneFarmRoutine = -1;
@@ -16,47 +16,39 @@ class AutoArgBoneFarmer {
         this.boneTraderButtonHTML = document.getElementById("boneBtnText");
         this.boneFarmAlwaysRunMap = false;
         this.boneFarmPresetOrder = [];
-        this.boneFarmGoingToMap = false;
+        this.boneFarmGoingToChamber = false;
     }
 
-    public StartBoneFarming(runMap: boolean, ...mapPresets: number[]): string {
-        if(this.boneFarmRoutine >= 0) { 
-          return "Already bone farming!"; 
-        }
-    
+    public StartBoneFarming(runMap: boolean, mapPresets: number[]): string {
         // DO NOT ATTEMPT IF LESS THAN ZONE 5
         if(game.global.world < 6) { 
-          return "Cannot (yet) bone farm less than World 6, since you cannot map yet!"; 
+            return "Cannot (yet) bone farm less than World 6, since you cannot map yet!"; 
         }
-        
-        if(this.boneTraderButtonHTML == null) { 
-          return "Couldn't find bone trader button! Cannot proceed!"; 
+
+        if(this.lastKnownBoneCount == -1) {
+            this.lastKnownBoneCount = this.CurrentBoneCount();
+
+            if(this.lastKnownBoneCount == null || this.lastKnownBoneCount < 0) { 
+                return "Bone count was " + this.lastKnownBoneCount + "! Cannot proceed!"; 
+            }
         }
-    
-        let bone_trade_btn_text = this.boneTraderButtonHTML.innerText;
-    
-        if(bone_trade_btn_text.indexOf("Trade ") == -1 || bone_trade_btn_text.indexOf(" Bones", 6) == -1) { 
-          return "Bone trader button seems weird! Cannot proceed!"; 
-        }
-    
-        this.lastKnownBoneCount = -1;
-        if(this.boneTraderButtonHTML != null) { 
-            this.lastKnownBoneCount = parseInt(this.boneTraderButtonHTML.innerText.substring("Trade ".length, this.boneTraderButtonHTML.innerText.indexOf(" Bones", 6))); 
-        }
-        if(this.lastKnownBoneCount == null || this.lastKnownBoneCount < 0) { return "Bone count was " + this.lastKnownBoneCount + "! Cannot proceed!"; }
         
         this.boneFarmAlwaysRunMap = runMap;
         this.boneFarmPresetOrder = [];
-        this.boneFarmGoingToMap = false;
+        this.boneFarmGoingToChamber = false;
         if(mapPresets != null) {
           for(let i: number = 0; i < mapPresets.length; i++) {
             if(mapPresets[i] < 1 || mapPresets[i] > 3) { continue; }
             this.boneFarmPresetOrder.push(mapPresets[i]);
           }
         }
-    
-        this.boneFarmRoutine = setInterval(this.BoneFarmingLogic, 100);
-        return "Now bone farming! Last bone drop zone: " + this.lastKnownBoneZone + ", current bone count: " + this.lastKnownBoneCount + ", last known bone drop time: " + this.lastKnownBoneTime;
+        
+        if(this.boneFarmRoutine < 0) {
+            this.boneFarmRoutine = setInterval(this.BoneFarmingLogic.bind(this), 100);
+        }
+        return "Bone farming active! Last bone drop zone: " + this.lastKnownBoneZone + 
+        ", current bone count: " + this.lastKnownBoneCount + ", last known bone drop time: " + this.lastKnownBoneTime +
+        ", running maps: " + this.boneFarmAlwaysRunMap + ", presets: " + this.boneFarmPresetOrder;
     }
 
     public StopBoneFarming(): string {
@@ -70,60 +62,71 @@ class AutoArgBoneFarmer {
     // All the bone farming logic. Checked once per 100 ticks
   private BoneFarmingLogic() {
     let secondsSinceLastBone: number = (getGameTime() - this.lastKnownBoneTime) / 1000;
-    // BASE CASE: It has been more than 45 minutes since the last bone,
-    // or else the last bone was found in a previous zone.
-    // Go back to world.
-    if(this.lastKnownBoneZone < game.global.world
-      || secondsSinceLastBone > (45 * 60)) {
-        this.boneFarmGoingToMap = false;
 
-      // If in map and not switching to map chamber, do so
-      if(game.global.mapsActive && !game.global.switchToMaps) {
-        mapsClicked();
-      }
-      // If on map screen and not switching to world, do so
-      if(game.global.preMapsActive && !game.global.switchToMaps) {
-        mapsClicked();
-      }
-    }
-
-    // Case where we're fighting in the world
-    else if(!game.global.preMapsActive && !game.global.mapsActive && game.global.fighting) {
-      // Subcase where we already know we have found a bone in this zone less than 45 minutes ago
-      if(this.lastKnownBoneZone == game.global.world) {
-        if(secondsSinceLastBone <= (45 * 60)) {
-          // Only have to really worry about mapping on cell 100
-          this.boneFarmGoingToMap = this.GoToMapAtZoneAndCell(game.global.world, 100);
-        }
-      } else { // Haven't found a bone yet.
-        // Try to detect a bone??
-        let currBoneCount = -1;
-        if(this.boneTraderButtonHTML != null) { 
-            currBoneCount = parseInt(this.boneTraderButtonHTML.innerText.substring("Trade ".length, this.boneTraderButtonHTML.innerText.indexOf(" Bones", 6))); 
-        }
+    if(!game.global.preMapsActive && !game.global.mapsActive) {
+        // IN WORLD
+        let currBoneCount = this.CurrentBoneCount();
         if(currBoneCount > this.lastKnownBoneCount) {
-          this.lastKnownBoneCount = currBoneCount;
-          this.lastKnownBoneZone = game.global.world;
-          this.lastKnownBoneTime = getGameTime();
+            this.lastKnownBoneCount = currBoneCount;
+            this.lastKnownBoneZone = game.global.world;
+            this.lastKnownBoneTime = getGameTime();
+            secondsSinceLastBone = 0;
         }
-      }
-    }
-      
-    // Case where we're returning to map in order to farm, and have arrived at the chamber.
-    // TODO: Would be great if it detected appropriate maps that already existed, and just ran those.
-    else if(this.boneFarmGoingToMap && game.global.preMapsActive && !game.global.mapsActive && !game.global.fighting) {
-      this.boneFarmGoingToMap = false;
-      if(this.boneFarmAlwaysRunMap) {
-        for(let i: number = 0; i < this.boneFarmPresetOrder.length; i++) {
-          if(game.global.selectedMapPreset != this.boneFarmPresetOrder[i]) {
-            selectAdvMapsPreset(this.boneFarmPresetOrder[i]);
-          }
-          if(buyMap() >= 0) { break; }
+        if(secondsSinceLastBone <= (45 * 60)) {
+            // MUST NOT MOVE ON
+            this.boneFarmGoingToChamber = this.GoToMapAtZoneAndCell(game.global.world, 100);
         }
-        selectMap(game.global.mapsOwnedArray[game.global.mapsOwnedArray.length - 1].id); // Select latest map
-        runMap();
-      }
+    } else if(!game.global.preMapsActive) {
+        // IN MAPS
+        if(secondsSinceLastBone > (45 * 60) && !game.global.switchToMaps) {
+            // ALLOWED TO GO BACK
+            this.boneFarmGoingToChamber = true;
+            mapsClicked();
+        }
+    } else {
+        // IN MAP CHAMBER
+        if(this.boneFarmGoingToChamber) {
+            if(secondsSinceLastBone > (45 * 60) && !game.global.switchToMaps) {
+                // ALLOWED TO GO BACK
+                mapsClicked();
+            }
+            else {
+                // MAPPING
+                if(this.boneFarmAlwaysRunMap) {
+                    if(this.boneFarmPresetOrder.length > 0) {
+                        // First recycle maps if over 50
+                        if(game.global.mapsOwnedArray.length > 50) {
+                            let mapHTML: any | null = document.getElementById("mapLevelInput");
+                            if(mapHTML != null) {
+                                mapHTML.value = (game.global.world - 3);
+                                recycleBelow(true);
+                            }
+                        }
+                        for(let i: number = 0; i < this.boneFarmPresetOrder.length; i++) {
+                            if(game.global.selectedMapPreset != this.boneFarmPresetOrder[i]) {
+                                selectAdvMapsPreset(this.boneFarmPresetOrder[i]);
+                            }
+                            if(buyMap() >= 0) {
+                                break; 
+                            }
+                        }
+                    }
+                    if(game.global.mapsOwnedArray.length > 0) {
+                        selectMap(game.global.mapsOwnedArray[game.global.mapsOwnedArray.length - 1].id); // Select latest map
+                        runMap();
+                    }
+                }
+            }
+            this.boneFarmGoingToChamber = false;
+        }
     }
+  }
+
+  private CurrentBoneCount(): number {
+    if(this.boneTraderButtonHTML != null) { 
+        return parseInt(this.boneTraderButtonHTML.innerText.substring("Trade ".length, this.boneTraderButtonHTML.innerText.indexOf(" Bones", 6))); 
+    }
+    return -1;
   }
 
   private GoToMapAtZoneAndCell(_zone: number, _cell: number): boolean {

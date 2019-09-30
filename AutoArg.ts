@@ -13,6 +13,7 @@ declare function selectAdvMapsPreset(num: number): void;
 declare function buyMap(): number; // Returns 1 if map was created. Negative values are different errors.
 declare function selectMap(mapId: string, force?: boolean): void;
 declare function runMap(): void;
+declare function recycleBelow(confirm: boolean): void;
 
 
 // USEFUL VARIABLES AND FUNCTIONS
@@ -47,16 +48,16 @@ class AutoArg {
     this.m_StanceDancer = new AutoArgStanceDancer();
   }
 
-  public StartBoneFarming(runMap: boolean, ...mapPresets: number[]): string {
-    return this.m_BoneFarmer.StartBoneFarming(runMap, ...mapPresets);
+  public StartBoneFarming(runMap: boolean, mapPresets: number[]): string {
+    return this.m_BoneFarmer.StartBoneFarming(runMap, mapPresets);
   }
 
   public StopBoneFarming(): string {
     return this.m_BoneFarmer.StopBoneFarming();
   }
 
-  public StartStanceDancing(healthThreshold: number, ...formations: number[]): string {
-    return this.m_StanceDancer.StartStanceDancing(healthThreshold, ...formations);
+  public StartStanceDancing(healthThreshold: number, formations: number[]): string {
+    return this.m_StanceDancer.StartStanceDancing(healthThreshold, formations);
   }
 
   public StopStanceDancing(): string {

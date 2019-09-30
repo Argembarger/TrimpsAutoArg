@@ -12,18 +12,18 @@ Right now you just interact with it throught the same console. Just type in `aut
 
 ## Functions
 
-* `autoArg.StartBoneFarming(runMap: boolean, ...mapPresets: number[])`
-    * `autoArg.StartBoneFarming(false);` Don't do anything after leaving world; just wait out timer.
-    * `autoArg.StartBoneFarming(true);` When leaving world to wait out timer, automap the latest map.
-    * `autoArg.StartBoneFarming(true, 2, 1, 3);` When leaving world to wait out timer, attempt to create a map with preset 2. If we can't afford it, try preset 1. If we can't afford it, try preset 3. Run the latest map regardless of which map (if any) gets created.
+* `autoArg.StartBoneFarming(runMap: boolean, mapPresets: number[])`
+    * `autoArg.StartBoneFarming(false, []);` Don't do anything after leaving world; just wait out timer.
+    * `autoArg.StartBoneFarming(true, []);` When leaving world to wait out timer, automap the latest map.
+    * `autoArg.StartBoneFarming(true, [2, 1, 3]);` When leaving world to wait out timer, attempt to create a map with preset 2. If we can't afford it, try preset 1. If we can't afford it, try preset 3. Run the latest map regardless of which map (if any) gets created.
     * **REGARDLESS OF WHAT HAPPENS, you can do anything you want in a map or in the map chamber, but BoneFarming will force you out of the world until 45 minutes after the last bone.**
 * `autoArg.StopBoneFarming();`
     * ...stops bone farming! wow!
-* `autoArg.StartStanceDancing(healthThreshold: number, ...formations: number[])`
+* `autoArg.StartStanceDancing(healthThreshold: number, formations: number[])`
     * `healthThreshold` should be between 0.01 and 0.99 (otherwise why bother?)
     * `formations` is your list of desired formations, where the first one is your max-health formation, and it moves down to the other ones as your health thresholds are hit.
     * 0 = X, 1 = H, 2 = D, 3 = B, 4 = S
-    * Example: `autoArg.StartStanceDancing(0.25, 2, 0, 1)` will do a standard D-X-H stancedance and attempt to transition at 25% health.
+    * Example: `autoArg.StartStanceDancing(0.25, [2, 0, 1]);` will do a standard D-X-H stancedance and attempt to transition at 25% health.
 * `autoArg.StopStanceDancing();`
     * Does what it says!
     * Calling again with different parameters will update the active parameters and keep going.
@@ -47,7 +47,7 @@ Install it locally with `npm install typescript` in a terminal pointed at this r
 
 ## COMPILE??
 
-`.\node_modules\.bin\tsc AutoArg.ts` (unless you install typescript globally, then it's just `tsc AutoArg.ts`)
+`.\node_modules\.bin\tsc` (unless you install typescript globally, then it's just `tsc` while in the project directory)
 
 It should appear in a folder called PasteMeInUrConsole
 

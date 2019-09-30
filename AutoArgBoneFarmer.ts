@@ -80,41 +80,38 @@ class AutoArgBoneFarmer {
         // IN MAPS
         if(secondsSinceLastBone > (45 * 60) && !game.global.switchToMaps) {
             // ALLOWED TO GO BACK
-            this.boneFarmGoingToChamber = true;
             mapsClicked();
         }
     } else {
         // IN MAP CHAMBER
-        if(this.boneFarmGoingToChamber) {
-            if(secondsSinceLastBone > (45 * 60) && !game.global.switchToMaps) {
-                // ALLOWED TO GO BACK
-                mapsClicked();
-            }
-            else {
-                // MAPPING
-                if(this.boneFarmAlwaysRunMap) {
-                    if(this.boneFarmPresetOrder.length > 0) {
-                        // First recycle maps if over 50
-                        if(game.global.mapsOwnedArray.length > 50) {
-                            let mapHTML: any | null = document.getElementById("mapLevelInput");
-                            if(mapHTML != null) {
-                                mapHTML.value = (game.global.world - 3);
-                                recycleBelow(true);
-                            }
-                        }
-                        for(let i: number = 0; i < this.boneFarmPresetOrder.length; i++) {
-                            if(game.global.selectedMapPreset != this.boneFarmPresetOrder[i]) {
-                                selectAdvMapsPreset(this.boneFarmPresetOrder[i]);
-                            }
-                            if(buyMap() >= 0) {
-                                break; 
-                            }
+        if(secondsSinceLastBone > (45 * 60) && !game.global.switchToMaps) {
+            // ALLOWED TO GO BACK
+            mapsClicked();
+        }
+        else if(this.boneFarmGoingToChamber) {
+            // MAPPING. "boneFarmGoingToChamber" prevents accidental spamming of maps.
+            if(this.boneFarmAlwaysRunMap) {
+                if(this.boneFarmPresetOrder.length > 0) {
+                    // First recycle maps if over 50
+                    if(game.global.mapsOwnedArray.length > 50) {
+                        let mapHTML: any | null = document.getElementById("mapLevelInput");
+                        if(mapHTML != null) {
+                            mapHTML.value = (game.global.world - 3);
+                            recycleBelow(true);
                         }
                     }
-                    if(game.global.mapsOwnedArray.length > 0) {
-                        selectMap(game.global.mapsOwnedArray[game.global.mapsOwnedArray.length - 1].id); // Select latest map
-                        runMap();
+                    for(let i: number = 0; i < this.boneFarmPresetOrder.length; i++) {
+                        if(game.global.selectedMapPreset != this.boneFarmPresetOrder[i]) {
+                            selectAdvMapsPreset(this.boneFarmPresetOrder[i]);
+                        }
+                        if(buyMap() >= 0) {
+                            break; 
+                        }
                     }
+                }
+                if(game.global.mapsOwnedArray.length > 0) {
+                    selectMap(game.global.mapsOwnedArray[game.global.mapsOwnedArray.length - 1].id); // Select latest map
+                    runMap();
                 }
             }
             this.boneFarmGoingToChamber = false;

@@ -96,6 +96,10 @@ class AutoArgBoneFarmer {
                         }
                     }
                     for(let i: number = 0; i < this.boneFarmPresetOrder.length; i++) {
+                        if(this.RunMapMatchingPreset(this.boneFarmPresetOrder[i])) {
+                            this.boneFarmGoingToChamber = false;
+                            return;
+                        }
                         if(game.global.selectedMapPreset != this.boneFarmPresetOrder[i]) {
                             selectAdvMapsPreset(this.boneFarmPresetOrder[i]);
                         }
@@ -104,6 +108,7 @@ class AutoArgBoneFarmer {
                         }
                     }
                 }
+                // Backup -- run last map in list (if the list has any at all...)
                 if(game.global.mapsOwnedArray.length > 0) {
                     selectMap(game.global.mapsOwnedArray[game.global.mapsOwnedArray.length - 1].id); // Select latest map
                     runMap();
@@ -128,6 +133,37 @@ class AutoArgBoneFarmer {
         return true;
       }
     }
+    return false;
+  }
+
+  // Selects and runs a map (and returns true) if one is found matching the preset number.
+  // Preset numbers are 1, 2, 3
+  // Returns false if no map matching preset is found.
+  public RunMapMatchingPreset(preset: number): boolean {
+    if(preset < 1 || preset > 3) return false;
+
+    let autoArgPresetInfo: any;
+    if(preset == 1) { autoArgPresetInfo = game.global.mapPresets.p1; }
+    else if(preset == 2) { autoArgPresetInfo = game.global.mapPresets.p2; }
+    else { autoArgPresetInfo = game.global.mapPresets.p3; }
+
+    let autoArgPresetZone: number = game.global.world + autoArgPresetInfo.offset;
+    let autoArgPresetSpecMod: string = autoArgPresetInfo.specMod;
+    // No check for perfect maps (yet)
+    // Certainly no check for general map slider values
+    
+    //console.log("preset zone: " + autoArgPresetZone + ", spec mod: " + autoArgPresetSpecMod);
+    // Searching from end of list for arguably faster matching
+    for(let i: number = game.global.mapsOwnedArray.length - 1; i >= 0; i--) {
+        if(game.global.mapsOwnedArray[i].level == autoArgPresetZone
+        && game.global.mapsOwnedArray[i].bonus == autoArgPresetSpecMod) {
+            selectMap(game.global.mapsOwnedArray[i].id); // Select latest map
+            runMap();
+            return true;
+        }
+        //console.log("checked map " + i + " with level " + game.global.mapsOwnedArray[i].level + " and specmod " + game.global.mapsOwnedArray[i].bonus);
+    }
+
     return false;
   }
 }

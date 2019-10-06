@@ -1,4 +1,4 @@
-class AutoArgBoneFarmer {
+class AutoBoner {
     private boneFarmRoutine: number;
     private lastKnownBoneZone: number;
     private lastKnownBoneCount: number;

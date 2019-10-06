@@ -1,5 +1,5 @@
-///<reference path="AutoArgBoneFarmer.ts" />
-///<reference path="AutoArgStanceDancer.ts" />
+///<reference path="AutoBoner.ts" />
+///<reference path="StanceDancer.ts" />
 
 // Fake hook into Trimps so TS doesn't whine :eyes:
 // TODO: More accurate representations of Trimps game elements would be sweet
@@ -39,21 +39,21 @@ declare function recycleBelow(confirm: boolean): void;
 // After loading Trimps, paste the following code into your console:
 // (SetInterval is at the bottom and controls what actually happens)
 class AutoArg {
-  private m_BoneFarmer: AutoArgBoneFarmer;
+  private m_AutoBoner: AutoBoner;
   private m_StanceDancer: AutoArgStanceDancer;
 
 
   constructor() {
-    this.m_BoneFarmer = new AutoArgBoneFarmer();
+    this.m_AutoBoner = new AutoBoner();
     this.m_StanceDancer = new AutoArgStanceDancer();
   }
 
   public StartBoneFarming(runMap: boolean, mapPresets: number[]): string {
-    return this.m_BoneFarmer.StartBoneFarming(runMap, mapPresets);
+    return this.m_AutoBoner.StartBoneFarming(runMap, mapPresets);
   }
 
   public StopBoneFarming(): string {
-    return this.m_BoneFarmer.StopBoneFarming();
+    return this.m_AutoBoner.StopBoneFarming();
   }
 
   public StartStanceDancing(healthThreshold: number, formations: number[]): string {

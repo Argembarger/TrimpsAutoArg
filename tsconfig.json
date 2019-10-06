@@ -6,6 +6,6 @@
         "strict": true,
         "outFile": "PasteMeInUrConsole/AutoArg.js"
     },
-    "include": ["AutoArg.ts", "AutoArgBoneFarmer.ts", "AutoArgStanceDancer.ts"],
+    "include": ["AutoArg.ts", "AutoBoner.ts", "StanceDancer.ts"],
     "compileOnSave": true
 }

@@ -1,6 +1,6 @@
 "use strict";
-var AutoArgBoneFarmer = /** @class */ (function () {
-    function AutoArgBoneFarmer() {
+var AutoBoner = /** @class */ (function () {
+    function AutoBoner() {
         this.boneFarmRoutine = -1;
         this.lastKnownBoneZone = -1;
         this.lastKnownBoneCount = -1;
@@ -10,7 +10,7 @@ var AutoArgBoneFarmer = /** @class */ (function () {
         this.boneFarmPresetOrder = [];
         this.boneFarmGoingToChamber = false;
     }
-    AutoArgBoneFarmer.prototype.StartBoneFarming = function (runMap, mapPresets) {
+    AutoBoner.prototype.StartBoneFarming = function (runMap, mapPresets) {
         if (this.lastKnownBoneCount == -1) {
             this.lastKnownBoneCount = this.CurrentBoneCount();
             if (this.lastKnownBoneCount == null || this.lastKnownBoneCount < 0) {
@@ -35,7 +35,7 @@ var AutoArgBoneFarmer = /** @class */ (function () {
             ", current bone count: " + this.lastKnownBoneCount + ", last known bone drop time: " + this.lastKnownBoneTime +
             ", running maps: " + this.boneFarmAlwaysRunMap + ", presets: " + this.boneFarmPresetOrder;
     };
-    AutoArgBoneFarmer.prototype.StopBoneFarming = function () {
+    AutoBoner.prototype.StopBoneFarming = function () {
         if (this.boneFarmRoutine < 0) {
             return "Not bone farming! Don't worry!";
         }
@@ -44,7 +44,7 @@ var AutoArgBoneFarmer = /** @class */ (function () {
         return "Stopped bone farming!";
     };
     // All the bone farming logic. Checked once per 100 ticks
-    AutoArgBoneFarmer.prototype.BoneFarmingLogic = function () {
+    AutoBoner.prototype.BoneFarmingLogic = function () {
         var secondsSinceLastBone = (getGameTime() - this.lastKnownBoneTime) / 1000;
         if (!game.global.preMapsActive && !game.global.mapsActive) {
             // IN WORLD
@@ -108,13 +108,13 @@ var AutoArgBoneFarmer = /** @class */ (function () {
             }
         }
     };
-    AutoArgBoneFarmer.prototype.CurrentBoneCount = function () {
+    AutoBoner.prototype.CurrentBoneCount = function () {
         if (this.boneTraderButtonHTML != null) {
             return parseInt(this.boneTraderButtonHTML.innerText.substring("Trade ".length, this.boneTraderButtonHTML.innerText.indexOf(" Bones", 6)));
         }
         return -1;
     };
-    AutoArgBoneFarmer.prototype.GoToMapAtZoneAndCell = function (_zone, _cell) {
+    AutoBoner.prototype.GoToMapAtZoneAndCell = function (_zone, _cell) {
         if (game.global.world == _zone && !game.global.preMapsActive && !game.global.mapsActive) {
             if (game.global.lastClearedCell + 2 == _cell) {
                 mapsClicked();
@@ -126,7 +126,7 @@ var AutoArgBoneFarmer = /** @class */ (function () {
     // Selects and runs a map (and returns true) if one is found matching the preset number.
     // Preset numbers are 1, 2, 3
     // Returns false if no map matching preset is found.
-    AutoArgBoneFarmer.prototype.RunMapMatchingPreset = function (preset) {
+    AutoBoner.prototype.RunMapMatchingPreset = function (preset) {
         if (preset < 1 || preset > 3)
             return false;
         var autoArgPresetInfo;
@@ -156,7 +156,7 @@ var AutoArgBoneFarmer = /** @class */ (function () {
         }
         return false;
     };
-    return AutoArgBoneFarmer;
+    return AutoBoner;
 }());
 var AutoArgStanceDancer = /** @class */ (function () {
     function AutoArgStanceDancer() {
@@ -249,8 +249,8 @@ var AutoArgStanceDancer = /** @class */ (function () {
     };
     return AutoArgStanceDancer;
 }());
-///<reference path="AutoArgBoneFarmer.ts" />
-///<reference path="AutoArgStanceDancer.ts" />
+///<reference path="AutoBoner.ts" />
+///<reference path="StanceDancer.ts" />
 // USEFUL VARIABLES AND FUNCTIONS
 // Current zone number: game.global.world
 // Current world cell: (game.global.lastClearedCell + 2)
@@ -268,14 +268,14 @@ var AutoArgStanceDancer = /** @class */ (function () {
 // (SetInterval is at the bottom and controls what actually happens)
 var AutoArg = /** @class */ (function () {
     function AutoArg() {
-        this.m_BoneFarmer = new AutoArgBoneFarmer();
+        this.m_AutoBoner = new AutoBoner();
         this.m_StanceDancer = new AutoArgStanceDancer();
     }
     AutoArg.prototype.StartBoneFarming = function (runMap, mapPresets) {
-        return this.m_BoneFarmer.StartBoneFarming(runMap, mapPresets);
+        return this.m_AutoBoner.StartBoneFarming(runMap, mapPresets);
     };
     AutoArg.prototype.StopBoneFarming = function () {
-        return this.m_BoneFarmer.StopBoneFarming();
+        return this.m_AutoBoner.StopBoneFarming();
     };
     AutoArg.prototype.StartStanceDancing = function (healthThreshold, formations) {
         return this.m_StanceDancer.StartStanceDancing(healthThreshold, formations);

@@ -5,12 +5,14 @@ var AutoBoner = /** @class */ (function () {
         this.lastKnownBoneZone = -1;
         this.lastKnownBoneCount = -1;
         this.lastKnownBoneTime = -1;
+        this.boneFarmingSeconds = 45;
         this.boneTraderButtonHTML = document.getElementById("boneBtnText");
         this.boneFarmAlwaysRunMap = false;
         this.boneFarmPresetOrder = [];
         this.boneFarmGoingToChamber = false;
     }
-    AutoBoner.prototype.StartBoneFarming = function (runMap, mapPresets) {
+    AutoBoner.prototype.StartBoneFarming = function (runMap, mapPresets, kob2) {
+        if (kob2 === void 0) { kob2 = false; }
         if (this.lastKnownBoneCount == -1) {
             this.lastKnownBoneCount = this.CurrentBoneCount();
             if (this.lastKnownBoneCount == null || this.lastKnownBoneCount < 0) {
@@ -20,6 +22,7 @@ var AutoBoner = /** @class */ (function () {
         this.boneFarmAlwaysRunMap = runMap;
         this.boneFarmPresetOrder = [];
         this.boneFarmGoingToChamber = false;
+        this.boneFarmingSeconds = (kob2 ? 35 : 45);
         if (mapPresets != null) {
             for (var i = 0; i < mapPresets.length; i++) {
                 if (mapPresets[i] < 1 || mapPresets[i] > 3) {
@@ -55,21 +58,21 @@ var AutoBoner = /** @class */ (function () {
                 this.lastKnownBoneTime = getGameTime();
                 secondsSinceLastBone = 0;
             }
-            if (secondsSinceLastBone <= (45 * 60) && game.global.world > 5) {
+            if (secondsSinceLastBone <= (this.boneFarmingSeconds * 60) && game.global.world > 5) {
                 // MUST NOT MOVE ON
                 this.boneFarmGoingToChamber = this.GoToMapAtZoneAndCell(game.global.world, 100);
             }
         }
         else if (!game.global.preMapsActive) {
             // IN MAPS
-            if (secondsSinceLastBone > (45 * 60) && !game.global.switchToMaps) {
+            if (secondsSinceLastBone > (this.boneFarmingSeconds * 60) && !game.global.switchToMaps) {
                 // ALLOWED TO GO BACK
                 mapsClicked();
             }
         }
         else {
             // IN MAP CHAMBER
-            if (secondsSinceLastBone > (45 * 60) && !game.global.switchToMaps) {
+            if (secondsSinceLastBone > (this.boneFarmingSeconds * 60) && !game.global.switchToMaps) {
                 // ALLOWED TO GO BACK
                 mapsClicked();
             }
@@ -227,8 +230,10 @@ var AutoArgStanceDancer = /** @class */ (function () {
             return;
         }
         if (this.gatheringDarkEssence) {
-            if (!game.global.mapsActive && countRemainingEssenceDrops() > 0) {
+            if (countRemainingEssenceDrops() > 0
+                && (!game.global.mapsActive || game.global.switchToMaps)) {
                 // Essence-gathering overrides standard stance-dancing
+                // Do it when in-world or switching to/from maps for extra safety.
                 setFormation('4');
                 return;
             }
@@ -271,8 +276,9 @@ var AutoArg = /** @class */ (function () {
         this.m_AutoBoner = new AutoBoner();
         this.m_StanceDancer = new AutoArgStanceDancer();
     }
-    AutoArg.prototype.StartBoneFarming = function (runMap, mapPresets) {
-        return this.m_AutoBoner.StartBoneFarming(runMap, mapPresets);
+    AutoArg.prototype.StartBoneFarming = function (runMap, mapPresets, kob2) {
+        if (kob2 === void 0) { kob2 = false; }
+        return this.m_AutoBoner.StartBoneFarming(runMap, mapPresets, kob2);
     };
     AutoArg.prototype.StopBoneFarming = function () {
         return this.m_AutoBoner.StopBoneFarming();

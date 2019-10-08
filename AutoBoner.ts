@@ -3,6 +3,7 @@ class AutoBoner {
     private lastKnownBoneZone: number;
     private lastKnownBoneCount: number;
     private lastKnownBoneTime: number;
+    private boneFarmingSeconds: number;
     private boneTraderButtonHTML: HTMLElement | null;
     public boneFarmAlwaysRunMap: boolean;
     public boneFarmPresetOrder: number[];
@@ -13,13 +14,14 @@ class AutoBoner {
         this.lastKnownBoneZone = -1;
         this.lastKnownBoneCount = -1;
         this.lastKnownBoneTime = -1;
+        this.boneFarmingSeconds = 45;
         this.boneTraderButtonHTML = document.getElementById("boneBtnText");
         this.boneFarmAlwaysRunMap = false;
         this.boneFarmPresetOrder = [];
         this.boneFarmGoingToChamber = false;
     }
 
-    public StartBoneFarming(runMap: boolean, mapPresets: number[]): string {
+    public StartBoneFarming(runMap: boolean, mapPresets: number[], kob2: boolean = false): string {
         if(this.lastKnownBoneCount == -1) {
             this.lastKnownBoneCount = this.CurrentBoneCount();
 
@@ -31,6 +33,8 @@ class AutoBoner {
         this.boneFarmAlwaysRunMap = runMap;
         this.boneFarmPresetOrder = [];
         this.boneFarmGoingToChamber = false;
+        this.boneFarmingSeconds = (kob2 ? 35 : 45);
+
         if(mapPresets != null) {
           for(let i: number = 0; i < mapPresets.length; i++) {
             if(mapPresets[i] < 1 || mapPresets[i] > 3) { continue; }
@@ -67,19 +71,19 @@ class AutoBoner {
             this.lastKnownBoneTime = getGameTime();
             secondsSinceLastBone = 0;
         }
-        if(secondsSinceLastBone <= (45 * 60) && game.global.world > 5) {
+        if(secondsSinceLastBone <= (this.boneFarmingSeconds * 60) && game.global.world > 5) {
             // MUST NOT MOVE ON
             this.boneFarmGoingToChamber = this.GoToMapAtZoneAndCell(game.global.world, 100);
         }
     } else if(!game.global.preMapsActive) {
         // IN MAPS
-        if(secondsSinceLastBone > (45 * 60) && !game.global.switchToMaps) {
+        if(secondsSinceLastBone > (this.boneFarmingSeconds * 60) && !game.global.switchToMaps) {
             // ALLOWED TO GO BACK
             mapsClicked();
         }
     } else {
         // IN MAP CHAMBER
-        if(secondsSinceLastBone > (45 * 60) && !game.global.switchToMaps) {
+        if(secondsSinceLastBone > (this.boneFarmingSeconds * 60) && !game.global.switchToMaps) {
             // ALLOWED TO GO BACK
             mapsClicked();
         }

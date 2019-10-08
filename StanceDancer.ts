@@ -80,8 +80,10 @@ class AutoArgStanceDancer {
         }
 
         if(this.gatheringDarkEssence) {
-            if(!game.global.mapsActive && countRemainingEssenceDrops() > 0) {
+            if(countRemainingEssenceDrops() > 0 
+            && (!game.global.mapsActive || game.global.switchToMaps)) {
                 // Essence-gathering overrides standard stance-dancing
+                // Do it when in-world or switching to/from maps for extra safety.
                 setFormation('4');
                 return; 
             }

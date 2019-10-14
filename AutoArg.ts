@@ -48,8 +48,8 @@ class AutoArg {
     this.m_StanceDancer = new AutoArgStanceDancer();
   }
 
-  public StartBoneFarming(runMap: boolean, mapPresets: number[], kob2: boolean = false): string {
-    return this.m_AutoBoner.StartBoneFarming(runMap, mapPresets, kob2);
+  public StartBoneFarming(runMap: boolean, mapPresets: number[], kob2: boolean = false, extraMins: number = 0.0): string {
+    return this.m_AutoBoner.StartBoneFarming(runMap, mapPresets, kob2, extraMins);
   }
 
   public StopBoneFarming(): string {

@@ -3,25 +3,27 @@ class AutoBoner {
     private lastKnownBoneZone: number;
     private lastKnownBoneCount: number;
     private lastKnownBoneTime: number;
-    private boneFarmingSeconds: number;
+    private boneFarmingMinutes: number;
     private boneTraderButtonHTML: HTMLElement | null;
     public boneFarmAlwaysRunMap: boolean;
     public boneFarmPresetOrder: number[];
     private boneFarmGoingToChamber: boolean;
+    private boneFarmingExtraMinutes: number;
 
     constructor() {
         this.boneFarmRoutine = -1;
         this.lastKnownBoneZone = -1;
         this.lastKnownBoneCount = -1;
         this.lastKnownBoneTime = -1;
-        this.boneFarmingSeconds = 45;
+        this.boneFarmingMinutes = 45;
+        this.boneFarmingExtraMinutes = 0;
         this.boneTraderButtonHTML = document.getElementById("boneBtnText");
         this.boneFarmAlwaysRunMap = false;
         this.boneFarmPresetOrder = [];
         this.boneFarmGoingToChamber = false;
     }
 
-    public StartBoneFarming(runMap: boolean, mapPresets: number[], kob2: boolean = false): string {
+    public StartBoneFarming(runMap: boolean, mapPresets: number[], kob2: boolean = false, extraMins: number = 0.0): string {
         if(this.lastKnownBoneCount == -1) {
             this.lastKnownBoneCount = this.CurrentBoneCount();
 
@@ -33,7 +35,8 @@ class AutoBoner {
         this.boneFarmAlwaysRunMap = runMap;
         this.boneFarmPresetOrder = [];
         this.boneFarmGoingToChamber = false;
-        this.boneFarmingSeconds = (kob2 ? 35 : 45);
+        this.boneFarmingMinutes = (kob2 ? 35 : 45) + extraMins;
+        this.boneFarmingExtraMinutes = extraMins;
 
         if(mapPresets != null) {
           for(let i: number = 0; i < mapPresets.length; i++) {
@@ -47,7 +50,8 @@ class AutoBoner {
         }
         return "Bone farming active! Last bone drop zone: " + this.lastKnownBoneZone + 
         ", current bone count: " + this.lastKnownBoneCount + ", last known bone drop time: " + this.lastKnownBoneTime +
-        ", running maps: " + this.boneFarmAlwaysRunMap + ", presets: " + this.boneFarmPresetOrder;
+        ", running maps: " + this.boneFarmAlwaysRunMap + ", presets: " + this.boneFarmPresetOrder +
+        ", farming minutes: " + this.boneFarmingMinutes + ", extra minutes: " + this.boneFarmingExtraMinutes;
     }
 
     public StopBoneFarming(): string {
@@ -60,6 +64,7 @@ class AutoBoner {
 
     // All the bone farming logic. Checked once per 100 ticks
   private BoneFarmingLogic() {
+    let secondsInZone: number = (getGameTime() - game.global.zoneStarted) / 1000;
     let secondsSinceLastBone: number = (getGameTime() - this.lastKnownBoneTime) / 1000;
 
     if(!game.global.preMapsActive && !game.global.mapsActive) {
@@ -71,19 +76,22 @@ class AutoBoner {
             this.lastKnownBoneTime = getGameTime();
             secondsSinceLastBone = 0;
         }
-        if(secondsSinceLastBone <= (this.boneFarmingSeconds * 60) && game.global.world > 5) {
+        if(game.global.world > 5
+            && (secondsSinceLastBone <= (this.boneFarmingMinutes * 60) || secondsInZone <= (this.boneFarmingExtraMinutes * 60))) {
             // MUST NOT MOVE ON
             this.boneFarmGoingToChamber = this.GoToMapAtZoneAndCell(game.global.world, 100);
         }
     } else if(!game.global.preMapsActive) {
-        // IN MAPS
-        if(secondsSinceLastBone > (this.boneFarmingSeconds * 60) && !game.global.switchToMaps) {
+        // IN MAPS. Inverse of conditions used to leave world
+        if(!game.global.switchToMaps 
+            && (secondsSinceLastBone > (this.boneFarmingMinutes * 60) && secondsInZone > (this.boneFarmingExtraMinutes * 60))) {
             // ALLOWED TO GO BACK
             mapsClicked();
         }
     } else {
-        // IN MAP CHAMBER
-        if(secondsSinceLastBone > (this.boneFarmingSeconds * 60) && !game.global.switchToMaps) {
+        // IN MAP CHAMBER. Inverse of conditions used to leave world
+        if(!game.global.switchToMaps 
+            && (secondsSinceLastBone > (this.boneFarmingMinutes * 60) && secondsInZone > (this.boneFarmingExtraMinutes * 60))) {
             // ALLOWED TO GO BACK
             mapsClicked();
         }

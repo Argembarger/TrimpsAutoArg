@@ -4,7 +4,6 @@ var AutoBoner = /** @class */ (function () {
         this.boneFarmRoutine = -1;
         this.lastKnownBoneZone = -1;
         this.lastKnownBoneCount = -1;
-        this.lastKnownBoneTime = -1;
         this.boneFarmingMinutes = 45;
         this.boneFarmingExtraMinutes = 0;
         this.boneTraderButtonHTML = document.getElementById("boneBtnText");
@@ -38,7 +37,7 @@ var AutoBoner = /** @class */ (function () {
             this.boneFarmRoutine = setInterval(this.BoneFarmingLogic.bind(this), 100);
         }
         return "Bone farming active! Last bone drop zone: " + this.lastKnownBoneZone +
-            ", current bone count: " + this.lastKnownBoneCount + ", last known bone drop time: " + this.lastKnownBoneTime +
+            ", current bone count: " + this.lastKnownBoneCount + ", last known bone drop time: " + game.global.lastSkeletimp +
             ", running maps: " + this.boneFarmAlwaysRunMap + ", presets: " + this.boneFarmPresetOrder +
             ", farming minutes: " + this.boneFarmingMinutes + ", extra minutes: " + this.boneFarmingExtraMinutes;
     };
@@ -53,15 +52,13 @@ var AutoBoner = /** @class */ (function () {
     // All the bone farming logic. Checked once per 100 ticks
     AutoBoner.prototype.BoneFarmingLogic = function () {
         var secondsInZone = (getGameTime() - game.global.zoneStarted) / 1000;
-        var secondsSinceLastBone = (getGameTime() - this.lastKnownBoneTime) / 1000;
+        var secondsSinceLastBone = (getGameTime() - game.global.lastSkeletimp) / 1000;
         if (!game.global.preMapsActive && !game.global.mapsActive) {
             // IN WORLD
             var currBoneCount = this.CurrentBoneCount();
             if (currBoneCount > this.lastKnownBoneCount) {
                 this.lastKnownBoneCount = currBoneCount;
                 this.lastKnownBoneZone = game.global.world;
-                this.lastKnownBoneTime = getGameTime();
-                secondsSinceLastBone = 0;
             }
             if (game.global.world > 5
                 && (secondsSinceLastBone <= (this.boneFarmingMinutes * 60) || secondsInZone <= (this.boneFarmingExtraMinutes * 60))) {

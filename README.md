@@ -12,10 +12,11 @@ Right now you just interact with it throught the same console. Just type in `aut
 
 ## Functions
 
-* `autoArg.StartBoneFarming(runMap: boolean, mapPresets: number[])`
+* `autoArg.StartBoneFarming(runMap: boolean, mapPresets: number[], kob2: boolean (optional), extraFarmingMinutes: number (optional))`
     * `autoArg.StartBoneFarming(false, []);` Don't do anything after leaving world; just wait out timer.
     * `autoArg.StartBoneFarming(true, []);` When leaving world to wait out timer, automap the latest map.
     * `autoArg.StartBoneFarming(true, [2, 1, 3]);` When leaving world to wait out timer, attempt to create a map with preset 2. If we can't afford it, try preset 1. If we can't afford it, try preset 3. Run the latest map regardless of which map (if any) gets created.
+    * `autoArg.StartBoneFarming(true, [3, 1], true, 30);` Always farm for at least 30 minutes, wait 35 minutes (kob2) plus 30 minutes per bone.
     * **REGARDLESS OF WHAT HAPPENS, you can do anything you want in a map or in the map chamber, but BoneFarming will force you out of the world until 45 minutes after the last bone.**
 * `autoArg.StopBoneFarming();`
     * ...stops bone farming! wow!

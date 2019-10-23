@@ -48,7 +48,7 @@ class AutoArgStanceDancer {
         if(this.stanceDanceRoutine < 0) {
             this.stanceDanceRoutine = setInterval(this.StanceDanceLogic.bind(this), 100);
         }
-        return "Now stance dancing with health threshold set to " + this.stanceDanceHealthThreshold + " and formations to " + this.stanceDanceFormations.toString();
+        return "Now stance dancing with health threshold set to " + this.stanceDanceHealthThreshold + " and formations to " + this.stanceDanceFormations.toString() + " and " + (this.resetStanceIfNewSquadIsReady ? "KILLING" : "not killing") + " squads when new squad is ready";
       }
     
       public StopStanceDancing(): string {

@@ -20,11 +20,12 @@ Right now you just interact with it throught the same console. Just type in `aut
     * **REGARDLESS OF WHAT HAPPENS, you can do anything you want in a map or in the map chamber, but BoneFarming will force you out of the world until 45 minutes after the last bone.**
 * `autoArg.StopBoneFarming();`
     * ...stops bone farming! wow!
-* `autoArg.StartStanceDancing(healthThreshold: number, formations: number[])`
+* `autoArg.StartStanceDancing(healthThreshold: number, formations: number[], resetForNewSquad: boolean (optional))`
     * `healthThreshold` should be between 0.01 and 0.99 (otherwise why bother?)
     * `formations` is your list of desired formations, where the first one is your max-health formation, and it moves down to the other ones as your health thresholds are hit.
     * 0 = X, 1 = H, 2 = D, 3 = B, 4 = S
     * Example: `autoArg.StartStanceDancing(0.25, [2, 0, 1]);` will do a standard D-X-H stancedance and attempt to transition at 25% health.
+    * Example: `autoArg.StartStanceDancing(0.125, [2,1], true);` will do a D-H stancedance and automatically kill the squad when the next squad is ready (unless that squad is still in D formation)
 * `autoArg.StopStanceDancing();`
     * Does what it says!
     * Calling again with different parameters will update the active parameters and keep going.

@@ -206,7 +206,7 @@ var AutoArgStanceDancer = /** @class */ (function () {
         if (this.stanceDanceRoutine < 0) {
             this.stanceDanceRoutine = setInterval(this.StanceDanceLogic.bind(this), 100);
         }
-        return "Now stance dancing with health threshold set to " + this.stanceDanceHealthThreshold + " and formations to " + this.stanceDanceFormations.toString();
+        return "Now stance dancing with health threshold set to " + this.stanceDanceHealthThreshold + " and formations to " + this.stanceDanceFormations.toString() + " and " + (this.resetStanceIfNewSquadIsReady ? "KILLING" : "not killing") + " squads when new squad is ready";
     };
     AutoArgStanceDancer.prototype.StopStanceDancing = function () {
         this.isStanceDancing = false;
@@ -247,11 +247,6 @@ var AutoArgStanceDancer = /** @class */ (function () {
             }
         }
         if (this.isStanceDancing) {
-            // Full Health reset-case
-            if (game.global.soldierHealth == game.global.soldierHealthMax) {
-                this.currStanceDanceFormationIndex = 0;
-                setFormation(this.stanceDanceFormations[this.currStanceDanceFormationIndex].toString());
-            }
             // Squad Ready reset-case
             if (this.resetStanceIfNewSquadIsReady) {
                 var trimpsOwnedHTML = document.getElementById("trimpsOwned");
@@ -259,7 +254,13 @@ var AutoArgStanceDancer = /** @class */ (function () {
                 if (trimpsOwnedHTML != null && trimpsMaxHTML != null && (trimpsOwnedHTML.innerHTML === trimpsMaxHTML.innerHTML)) {
                     this.currStanceDanceFormationIndex = 0;
                     setFormation(this.stanceDanceFormations[this.currStanceDanceFormationIndex].toString());
+                    return;
                 }
+            }
+            // Full Health reset-case
+            if (game.global.soldierHealth == game.global.soldierHealthMax) {
+                this.currStanceDanceFormationIndex = 0;
+                setFormation(this.stanceDanceFormations[this.currStanceDanceFormationIndex].toString());
             }
             // Cycle through remaining formations as health threshold is reached
             else if (this.currStanceDanceFormationIndex < this.stanceDanceFormations.length - 1

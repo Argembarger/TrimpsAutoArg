@@ -94,11 +94,6 @@ class AutoArgStanceDancer {
         }
     
         if(this.isStanceDancing) {
-            // Full Health reset-case
-            if(game.global.soldierHealth == game.global.soldierHealthMax) {
-                this.currStanceDanceFormationIndex = 0;
-                setFormation(this.stanceDanceFormations[this.currStanceDanceFormationIndex].toString());
-            }
             // Squad Ready reset-case
             if(this.resetStanceIfNewSquadIsReady) {
                 let trimpsOwnedHTML: any | null = document.getElementById("trimpsOwned");
@@ -106,7 +101,13 @@ class AutoArgStanceDancer {
                 if(trimpsOwnedHTML != null && trimpsMaxHTML != null && (trimpsOwnedHTML.innerHTML === trimpsMaxHTML.innerHTML)) {
                     this.currStanceDanceFormationIndex = 0;
                     setFormation(this.stanceDanceFormations[this.currStanceDanceFormationIndex].toString());
+                    return;
                 }
+            }
+            // Full Health reset-case
+            if(game.global.soldierHealth == game.global.soldierHealthMax) {
+                this.currStanceDanceFormationIndex = 0;
+                setFormation(this.stanceDanceFormations[this.currStanceDanceFormationIndex].toString());
             }
             // Cycle through remaining formations as health threshold is reached
             else if(this.currStanceDanceFormationIndex < this.stanceDanceFormations.length - 1

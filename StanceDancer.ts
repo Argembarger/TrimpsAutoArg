@@ -96,9 +96,7 @@ class AutoArgStanceDancer {
         if(this.isStanceDancing) {
             // Squad Ready reset-case
             if(this.resetStanceIfNewSquadIsReady) {
-                let trimpsOwnedHTML: any | null = document.getElementById("trimpsOwned");
-                let trimpsMaxHTML: any | null = document.getElementById("trimpsMax");
-                if(trimpsOwnedHTML != null && trimpsMaxHTML != null && (trimpsOwnedHTML.innerHTML === trimpsMaxHTML.innerHTML)) {
+                if(game.resources.trimps.realMax() === game.resources.trimps.owned) {
                     this.currStanceDanceFormationIndex = 0;
                     setFormation(this.stanceDanceFormations[this.currStanceDanceFormationIndex].toString());
                     return;

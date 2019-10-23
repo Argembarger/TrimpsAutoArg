@@ -249,9 +249,7 @@ var AutoArgStanceDancer = /** @class */ (function () {
         if (this.isStanceDancing) {
             // Squad Ready reset-case
             if (this.resetStanceIfNewSquadIsReady) {
-                var trimpsOwnedHTML = document.getElementById("trimpsOwned");
-                var trimpsMaxHTML = document.getElementById("trimpsMax");
-                if (trimpsOwnedHTML != null && trimpsMaxHTML != null && (trimpsOwnedHTML.innerHTML === trimpsMaxHTML.innerHTML)) {
+                if (game.resources.trimps.realMax() === game.resources.trimps.owned) {
                     this.currStanceDanceFormationIndex = 0;
                     setFormation(this.stanceDanceFormations[this.currStanceDanceFormationIndex].toString());
                     return;

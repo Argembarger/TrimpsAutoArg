@@ -4,6 +4,22 @@
 // Fake hook into Trimps so TS doesn't whine :eyes:
 // TODO: More accurate representations of Trimps game elements would be sweet
 declare const game: any;
+/*declare const game: { 
+  global: { 
+    lastSkeletimp: number; 
+    zoneStarted: number; 
+    preMapsActive: boolean; 
+    mapsActive: boolean; 
+    world: number; 
+    switchToMaps: boolean; 
+    mapsOwnedArray: { 
+      id: string; 
+    }[]; 
+    selectedMapPreset: number; 
+    lastClearedCell: number; 
+    mapPresets: { ...; }; 
+    soldierHealth: number; 
+    soldierHealthMax: number; }; }*/
 
 declare function mapsClicked(): void;
 declare function setFormation(what: string): void;
@@ -56,8 +72,8 @@ class AutoArg {
     return this.m_AutoBoner.StopBoneFarming();
   }
 
-  public StartStanceDancing(healthThreshold: number, formations: number[]): string {
-    return this.m_StanceDancer.StartStanceDancing(healthThreshold, formations);
+  public StartStanceDancing(healthThreshold: number, formations: number[], resetForNewSquad: boolean = false): string {
+    return this.m_StanceDancer.StartStanceDancing(healthThreshold, formations, resetForNewSquad);
   }
 
   public StopStanceDancing(): string {

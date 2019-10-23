@@ -174,8 +174,10 @@ var AutoArgStanceDancer = /** @class */ (function () {
         this.stanceDanceHealthThreshold = 0.5;
         this.stanceDanceFormations = [];
         this.currStanceDanceFormationIndex = 0;
+        this.resetStanceIfNewSquadIsReady = false;
     }
-    AutoArgStanceDancer.prototype.StartStanceDancing = function (healthThreshold, formations) {
+    AutoArgStanceDancer.prototype.StartStanceDancing = function (healthThreshold, formations, resetForNewSquad) {
+        if (resetForNewSquad === void 0) { resetForNewSquad = false; }
         // Interpret being called without formations provided as a "stop"
         if (formations == null || formations == []) {
             return this.StopStanceDancing();
@@ -199,6 +201,7 @@ var AutoArgStanceDancer = /** @class */ (function () {
         this.stanceDanceFormations = newFormations;
         this.currStanceDanceFormationIndex = 0;
         this.isStanceDancing = true;
+        this.resetStanceIfNewSquadIsReady = resetForNewSquad;
         // Kick off loop if needed
         if (this.stanceDanceRoutine < 0) {
             this.stanceDanceRoutine = setInterval(this.StanceDanceLogic.bind(this), 100);
@@ -249,6 +252,15 @@ var AutoArgStanceDancer = /** @class */ (function () {
                 this.currStanceDanceFormationIndex = 0;
                 setFormation(this.stanceDanceFormations[this.currStanceDanceFormationIndex].toString());
             }
+            // Squad Ready reset-case
+            if (this.resetStanceIfNewSquadIsReady) {
+                var trimpsOwnedHTML = document.getElementById("trimpsOwned");
+                var trimpsMaxHTML = document.getElementById("trimpsMax");
+                if (trimpsOwnedHTML != null && trimpsMaxHTML != null && (trimpsOwnedHTML.innerHTML === trimpsMaxHTML.innerHTML)) {
+                    this.currStanceDanceFormationIndex = 0;
+                    setFormation(this.stanceDanceFormations[this.currStanceDanceFormationIndex].toString());
+                }
+            }
             // Cycle through remaining formations as health threshold is reached
             else if (this.currStanceDanceFormationIndex < this.stanceDanceFormations.length - 1
                 && game.global.soldierHealth <= game.global.soldierHealthMax * this.stanceDanceHealthThreshold) {
@@ -289,8 +301,9 @@ var AutoArg = /** @class */ (function () {
     AutoArg.prototype.StopBoneFarming = function () {
         return this.m_AutoBoner.StopBoneFarming();
     };
-    AutoArg.prototype.StartStanceDancing = function (healthThreshold, formations) {
-        return this.m_StanceDancer.StartStanceDancing(healthThreshold, formations);
+    AutoArg.prototype.StartStanceDancing = function (healthThreshold, formations, resetForNewSquad) {
+        if (resetForNewSquad === void 0) { resetForNewSquad = false; }
+        return this.m_StanceDancer.StartStanceDancing(healthThreshold, formations, resetForNewSquad);
     };
     AutoArg.prototype.StopStanceDancing = function () {
         return this.m_StanceDancer.StopStanceDancing();

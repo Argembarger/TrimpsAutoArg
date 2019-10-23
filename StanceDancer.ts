@@ -10,6 +10,7 @@ class AutoArgStanceDancer {
     private stanceDanceHealthThreshold: number;
     private stanceDanceFormations: number[];
     private currStanceDanceFormationIndex: number;
+    private resetStanceIfNewSquadIsReady: boolean;
 
     constructor() {
         this.stanceDanceRoutine = -1;
@@ -20,8 +21,9 @@ class AutoArgStanceDancer {
         this.stanceDanceHealthThreshold = 0.5;
         this.stanceDanceFormations = [];
         this.currStanceDanceFormationIndex = 0;
+        this.resetStanceIfNewSquadIsReady = false;
     }
-    public StartStanceDancing(healthThreshold: number, formations: number[]): string {
+    public StartStanceDancing(healthThreshold: number, formations: number[], resetForNewSquad: boolean = false): string {
         // Interpret being called without formations provided as a "stop"
         if(formations == null || formations == []) { return this.StopStanceDancing(); }
     
@@ -39,6 +41,8 @@ class AutoArgStanceDancer {
         this.stanceDanceFormations = newFormations;
         this.currStanceDanceFormationIndex = 0;
         this.isStanceDancing = true;
+
+        this.resetStanceIfNewSquadIsReady = resetForNewSquad;
 
         // Kick off loop if needed
         if(this.stanceDanceRoutine < 0) {
@@ -94,6 +98,15 @@ class AutoArgStanceDancer {
             if(game.global.soldierHealth == game.global.soldierHealthMax) {
                 this.currStanceDanceFormationIndex = 0;
                 setFormation(this.stanceDanceFormations[this.currStanceDanceFormationIndex].toString());
+            }
+            // Squad Ready reset-case
+            if(this.resetStanceIfNewSquadIsReady) {
+                let trimpsOwnedHTML: any | null = document.getElementById("trimpsOwned");
+                let trimpsMaxHTML: any | null = document.getElementById("trimpsMax");
+                if(trimpsOwnedHTML != null && trimpsMaxHTML != null && (trimpsOwnedHTML.innerHTML === trimpsMaxHTML.innerHTML)) {
+                    this.currStanceDanceFormationIndex = 0;
+                    setFormation(this.stanceDanceFormations[this.currStanceDanceFormationIndex].toString());
+                }
             }
             // Cycle through remaining formations as health threshold is reached
             else if(this.currStanceDanceFormationIndex < this.stanceDanceFormations.length - 1

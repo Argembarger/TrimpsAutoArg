@@ -251,7 +251,7 @@ var AutoArgStanceDancer = /** @class */ (function () {
             if (this.resetStanceIfNewSquadIsReady) {
                 if (game.resources.trimps.realMax() === game.resources.trimps.owned) {
                     this.currStanceDanceFormationIndex = 0;
-                    setFormation(this.stanceDanceFormations[this.currStanceDanceFormationIndex].toString());
+                    setFormation("2");
                     return;
                 }
             }

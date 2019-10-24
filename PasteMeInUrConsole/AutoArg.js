@@ -190,11 +190,11 @@ var AutoArgStanceDancer = /** @class */ (function () {
             }
             newFormations.push(formations[i]);
         }
-        if (healthThreshold < 0.01) {
-            healthThreshold = 0.01;
+        if (healthThreshold < 0) {
+            healthThreshold = 0;
         }
-        else if (healthThreshold > 0.99) {
-            healthThreshold = 0.99;
+        else if (healthThreshold > 1) {
+            healthThreshold = 1;
         }
         // Update values
         this.stanceDanceHealthThreshold = healthThreshold;

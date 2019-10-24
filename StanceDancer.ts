@@ -33,8 +33,8 @@ class AutoArgStanceDancer {
           if(formations[i] < 0 || formations[i] > 4) { continue; }
           newFormations.push(formations[i]);
         }
-        if(healthThreshold < 0.01) { healthThreshold = 0.01; }
-        else if(healthThreshold > 0.99) { healthThreshold = 0.99; }
+        if(healthThreshold < 0) { healthThreshold = 0; }
+        else if(healthThreshold > 1) { healthThreshold = 1; }
     
         // Update values
         this.stanceDanceHealthThreshold = healthThreshold;

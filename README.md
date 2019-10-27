@@ -21,7 +21,7 @@ Right now you just interact with it throught the same console. Just type in `aut
 * `autoArg.StopBoneFarming();`
     * ...stops bone farming! wow!
 * `autoArg.StartStanceDancing(healthThreshold: number, formations: number[], resetForNewSquad: boolean (optional))`
-    * `healthThreshold` should be between 0.01 and 0.99 (otherwise why bother?)
+    * `healthThreshold` should be between 0 and 1 (otherwise why bother?)
     * `formations` is your list of desired formations, where the first one is your max-health formation, and it moves down to the other ones as your health thresholds are hit.
     * 0 = X, 1 = H, 2 = D, 3 = B, 4 = S
     * Example: `autoArg.StartStanceDancing(0.25, [2, 0, 1]);` will do a standard D-X-H stancedance and attempt to transition at 25% health.

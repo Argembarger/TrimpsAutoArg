@@ -63,7 +63,7 @@ var AutoBoner = /** @class */ (function () {
             if (game.global.world > 5
                 && (secondsSinceLastBone <= (this.boneFarmingMinutes * 60) || secondsInZone <= (this.boneFarmingExtraMinutes * 60))) {
                 // MUST NOT MOVE ON
-                this.boneFarmGoingToChamber = this.GoToMapAtZoneAndCell(game.global.world, 100);
+                this.boneFarmGoingToChamber = this.GoToMapOnOrAfterZoneAndCell(game.global.world, 81);
             }
         }
         else if (!game.global.preMapsActive) {
@@ -122,9 +122,9 @@ var AutoBoner = /** @class */ (function () {
         }
         return -1;
     };
-    AutoBoner.prototype.GoToMapAtZoneAndCell = function (_zone, _cell) {
+    AutoBoner.prototype.GoToMapOnOrAfterZoneAndCell = function (_zone, _cell) {
         if (game.global.world == _zone && !game.global.preMapsActive && !game.global.mapsActive) {
-            if (game.global.lastClearedCell + 2 == _cell) {
+            if (game.global.lastClearedCell + 2 >= _cell) {
                 mapsClicked();
                 return true;
             }

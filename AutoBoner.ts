@@ -75,7 +75,7 @@ class AutoBoner {
         if(game.global.world > 5
             && (secondsSinceLastBone <= (this.boneFarmingMinutes * 60) || secondsInZone <= (this.boneFarmingExtraMinutes * 60))) {
             // MUST NOT MOVE ON
-            this.boneFarmGoingToChamber = this.GoToMapAtZoneAndCell(game.global.world, 100);
+            this.boneFarmGoingToChamber = this.GoToMapOnOrAfterZoneAndCell(game.global.world, 81);
         }
     } else if(!game.global.preMapsActive) {
         // IN MAPS. Inverse of conditions used to leave world
@@ -134,9 +134,9 @@ class AutoBoner {
     return -1;
   }
 
-  private GoToMapAtZoneAndCell(_zone: number, _cell: number): boolean {
+  private GoToMapOnOrAfterZoneAndCell(_zone: number, _cell: number): boolean {
     if(game.global.world == _zone && !game.global.preMapsActive && !game.global.mapsActive) {
-      if(game.global.lastClearedCell + 2 == _cell) {
+      if(game.global.lastClearedCell + 2 >= _cell) {
         mapsClicked();
         return true;
       }

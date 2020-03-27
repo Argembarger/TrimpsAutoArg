@@ -8,6 +8,7 @@ class AutoBoner {
     public boneFarmPresetOrder: number[];
     private boneFarmGoingToChamber: boolean;
     private boneFarmingExtraMinutes: number;
+    private mapRepeatButtonHTML: Element | null;
 
     constructor() {
         this.boneFarmRoutine = -1;
@@ -19,6 +20,7 @@ class AutoBoner {
         this.boneFarmAlwaysRunMap = false;
         this.boneFarmPresetOrder = [];
         this.boneFarmGoingToChamber = false;
+        this.mapRepeatButtonHTML = document.getElementsByClassName("btn settingBtn0 fightBtn")[1];
     }
 
     public StartBoneFarming(runMap: boolean, mapPresets: number[], kob2: boolean = false, extraMins: number = 0.0): string {
@@ -82,7 +84,17 @@ class AutoBoner {
         if(!game.global.switchToMaps 
             && (secondsSinceLastBone > (this.boneFarmingMinutes * 60) && secondsInZone > (this.boneFarmingExtraMinutes * 60))) {
             // ALLOWED TO GO BACK
-            mapsClicked();
+            if(this.mapRepeatButtonHTML != null) {
+                if(this.mapRepeatButtonHTML.textContent !== "Repeat for Any") { toggleSetting('repeatUntil'); }
+            } else {
+                mapsClicked();
+            }
+        }
+        else {
+            // NOT ALLOWED TO GO BACK
+            if(this.mapRepeatButtonHTML != null) {
+                if(this.mapRepeatButtonHTML.textContent !== "Repeat Forever") { toggleSetting('repeatUntil'); }
+            }
         }
     } else {
         // IN MAP CHAMBER. Inverse of conditions used to leave world

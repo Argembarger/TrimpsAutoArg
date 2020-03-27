@@ -30,6 +30,7 @@ declare function buyMap(): number; // Returns 1 if map was created. Negative val
 declare function selectMap(mapId: string, force?: boolean): void;
 declare function runMap(): void;
 declare function recycleBelow(confirm: boolean): void;
+declare function toggleSetting(settingName: string): void;
 
 
 // USEFUL VARIABLES AND FUNCTIONS

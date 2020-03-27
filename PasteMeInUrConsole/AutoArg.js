@@ -10,6 +10,7 @@ var AutoBoner = /** @class */ (function () {
         this.boneFarmAlwaysRunMap = false;
         this.boneFarmPresetOrder = [];
         this.boneFarmGoingToChamber = false;
+        this.mapRepeatButtonHTML = document.getElementsByClassName("btn settingBtn0 fightBtn")[1];
     }
     AutoBoner.prototype.StartBoneFarming = function (runMap, mapPresets, kob2, extraMins) {
         if (kob2 === void 0) { kob2 = false; }
@@ -71,7 +72,22 @@ var AutoBoner = /** @class */ (function () {
             if (!game.global.switchToMaps
                 && (secondsSinceLastBone > (this.boneFarmingMinutes * 60) && secondsInZone > (this.boneFarmingExtraMinutes * 60))) {
                 // ALLOWED TO GO BACK
-                mapsClicked();
+                if (this.mapRepeatButtonHTML != null) {
+                    if (this.mapRepeatButtonHTML.textContent !== "Repeat for Any") {
+                        toggleSetting('repeatUntil');
+                    }
+                }
+                else {
+                    mapsClicked();
+                }
+            }
+            else {
+                // NOT ALLOWED TO GO BACK
+                if (this.mapRepeatButtonHTML != null) {
+                    if (this.mapRepeatButtonHTML.textContent !== "Repeat Forever") {
+                        toggleSetting('repeatUntil');
+                    }
+                }
             }
         }
         else {

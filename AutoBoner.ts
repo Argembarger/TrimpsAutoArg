@@ -9,6 +9,7 @@ class AutoBoner {
     private boneFarmGoingToChamber: boolean;
     private boneFarmingExtraMinutes: number;
     private mapRepeatButtonHTML: Element | null;
+    private mapRepeatLastStatus: string;
 
     constructor() {
         this.boneFarmRoutine = -1;
@@ -21,6 +22,7 @@ class AutoBoner {
         this.boneFarmPresetOrder = [];
         this.boneFarmGoingToChamber = false;
         this.mapRepeatButtonHTML = document.getElementsByClassName("btn settingBtn0 fightBtn")[1];
+        this.mapRepeatLastStatus = "";
     }
 
     public StartBoneFarming(runMap: boolean, mapPresets: number[], kob2: boolean = false, extraMins: number = 0.0): string {
@@ -81,19 +83,21 @@ class AutoBoner {
         }
     } else if(!game.global.preMapsActive) {
         // IN MAPS. Inverse of conditions used to leave world
+        let currStatus: string | undefined = (this.mapRepeatButtonHTML ? this.mapRepeatButtonHTML.textContent ? this.mapRepeatButtonHTML.textContent.toLowerCase() : undefined : undefined);
+
         if(!game.global.switchToMaps 
             && (secondsSinceLastBone > (this.boneFarmingMinutes * 60) && secondsInZone > (this.boneFarmingExtraMinutes * 60))) {
             // ALLOWED TO GO BACK
-            if(this.mapRepeatButtonHTML != null) {
-                if(this.mapRepeatButtonHTML.textContent !== "Repeat for Any") { toggleSetting('repeatUntil'); }
+            if(currStatus != undefined) {
+                if(currStatus !== "repeat for any" && currStatus !== this.mapRepeatLastStatus) { this.mapRepeatLastStatus = currStatus; /*console.log("Toggling at " + currStatus);*/ toggleSetting('repeatUntil'); }
             } else {
                 mapsClicked();
             }
         }
         else {
             // NOT ALLOWED TO GO BACK
-            if(this.mapRepeatButtonHTML != null) {
-                if(this.mapRepeatButtonHTML.textContent !== "Repeat Forever") { toggleSetting('repeatUntil'); }
+            if(currStatus != undefined) {
+                if(currStatus !== "repeat forever" && currStatus !== this.mapRepeatLastStatus) { this.mapRepeatLastStatus = currStatus; /*console.log("Toggling at " + currStatus);*/ toggleSetting('repeatUntil'); }
             }
         }
     } else {

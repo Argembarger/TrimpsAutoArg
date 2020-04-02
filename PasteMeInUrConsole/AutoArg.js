@@ -11,6 +11,7 @@ var AutoBoner = /** @class */ (function () {
         this.boneFarmPresetOrder = [];
         this.boneFarmGoingToChamber = false;
         this.mapRepeatButtonHTML = document.getElementsByClassName("btn settingBtn0 fightBtn")[1];
+        this.mapRepeatLastStatus = "";
     }
     AutoBoner.prototype.StartBoneFarming = function (runMap, mapPresets, kob2, extraMins) {
         if (kob2 === void 0) { kob2 = false; }
@@ -69,11 +70,13 @@ var AutoBoner = /** @class */ (function () {
         }
         else if (!game.global.preMapsActive) {
             // IN MAPS. Inverse of conditions used to leave world
+            var currStatus = (this.mapRepeatButtonHTML ? this.mapRepeatButtonHTML.textContent ? this.mapRepeatButtonHTML.textContent.toLowerCase() : undefined : undefined);
             if (!game.global.switchToMaps
                 && (secondsSinceLastBone > (this.boneFarmingMinutes * 60) && secondsInZone > (this.boneFarmingExtraMinutes * 60))) {
                 // ALLOWED TO GO BACK
-                if (this.mapRepeatButtonHTML != null) {
-                    if (this.mapRepeatButtonHTML.textContent !== "Repeat for Any") {
+                if (currStatus != undefined) {
+                    if (currStatus !== "repeat for any" && currStatus !== this.mapRepeatLastStatus) {
+                        this.mapRepeatLastStatus = currStatus; /*console.log("Toggling at " + currStatus);*/
                         toggleSetting('repeatUntil');
                     }
                 }
@@ -83,8 +86,9 @@ var AutoBoner = /** @class */ (function () {
             }
             else {
                 // NOT ALLOWED TO GO BACK
-                if (this.mapRepeatButtonHTML != null) {
-                    if (this.mapRepeatButtonHTML.textContent !== "Repeat Forever") {
+                if (currStatus != undefined) {
+                    if (currStatus !== "repeat forever" && currStatus !== this.mapRepeatLastStatus) {
+                        this.mapRepeatLastStatus = currStatus; /*console.log("Toggling at " + currStatus);*/
                         toggleSetting('repeatUntil');
                     }
                 }

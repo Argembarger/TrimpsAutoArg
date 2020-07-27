@@ -1,9 +1,12 @@
 class AutoArgStanceDancer {
     // Shared Stuff
     private stanceDanceRoutine: number;
+    private badGuyHealthHTML: HTMLElement | null;
+    private badGuyHealthMaxHTML: HTMLElement | null;
 
     // DE Farming Stuff
     private gatheringDarkEssence: boolean;
+    private mapRepeatButtonHTML: Element | null;
 
     // Stance Dancing Stuff
     private isStanceDancing: boolean;
@@ -14,9 +17,12 @@ class AutoArgStanceDancer {
 
     constructor() {
         this.stanceDanceRoutine = -1;
+        this.badGuyHealthHTML = document.getElementById("badGuyHealth");
+        this.badGuyHealthMaxHTML = document.getElementById("badGuyHealthMax");
 
         this.gatheringDarkEssence = false;
-        
+        this.mapRepeatButtonHTML = document.getElementsByClassName("btn settingBtn0 fightBtn")[1];
+
         this.isStanceDancing = false;
         this.stanceDanceHealthThreshold = 0.5;
         this.stanceDanceFormations = [];
@@ -84,11 +90,16 @@ class AutoArgStanceDancer {
         const gameGlobal = game.global;
 
         // Essence-gathering overrides normal stance-dancing.
-        if(this.gatheringDarkEssence && gameGlobal.world > 180) {
-            if(countRemainingEssenceDrops() > 0 
-            && (!gameGlobal.mapsActive || gameGlobal.switchToMaps)) {
+        // Only applies if we aren't in maps, and are world 180 or above. (180 won't have drops but we want to prepare for 181.)
+        const currStatus: string | undefined = (this.mapRepeatButtonHTML ? this.mapRepeatButtonHTML.textContent ? this.mapRepeatButtonHTML.textContent.toLowerCase() : undefined : undefined)
+        if(this.gatheringDarkEssence && gameGlobal.world > 179
+            && (!gameGlobal.mapsActive 
+                || (gameGlobal.mapsActive && (gameGlobal.switchToMaps || (currStatus != undefined && currStatus !== "repeat forever")))) ) {
+            // If there are available drops,
+            // or if we're fighting an almost-dead boss, so that we can have S enabled the entire time.
+            if(countRemainingEssenceDrops() > 0
+            || (game.global.lastClearedCell == 98 && this.BadGuyCurrentHealthRatio() <= 0.05)) {
                 // Essence-gathering overrides standard stance-dancing
-                // Do it when in-world or switching to/from maps for extra safety.
                 setFormation('4');
                 return; 
             }
@@ -122,5 +133,10 @@ class AutoArgStanceDancer {
         const formHTML: HTMLElement | null = document.getElementById("formation" + formation);
         const formDisp: string | null | undefined = (formHTML != null ? formHTML.style.display : null);
         return (formDisp != null && formDisp != undefined && formDisp !== ""); // formDisp would be "block" if it's available.
+    }
+
+    private BadGuyCurrentHealthRatio = (): number => {
+        if(this.badGuyHealthHTML == null || this.badGuyHealthMaxHTML == null) {return 1.0;}
+        return (Number(this.badGuyHealthHTML.innerHTML) / Number(this.badGuyHealthMaxHTML.innerHTML));
     }
 }

@@ -39,17 +39,19 @@ These console functions use optional parameters, but unfortunately it is not ful
     * If both Bone and Weapon Farming are run simultaneously, the system will farm until both conditions are satisfied.
 * `autoArg.StopWeaponFarming();`
     * You can probably guess what this one does.
-* `autoArg.StartStanceDancing(healthThreshold: number, formations: number[], resetForNewSquad: boolean (optional));`
+* `autoArg.StartStanceDancing(healthThreshold: number, formations: number[], resetForNewSquad: boolean, mapHP: number, mapForms: number[], mapSquadReset: boolean);`
     * This function maintains a stance-dance routine during combat, where it tries to run through your specified formations and switch at the specified HP-remaining intervals
     * `healthThreshold` should be between `0` and `1`, and will be clamped to these values if you try to be silly and pass anything else in. The default value is `0.5`, or half-health.
     * `formations` is an array of your desired formations, like `[2,0,1]` (which is also the default value), where the first entry is your max-health formation, and it moves down the remaining ones as your health thresholds are hit.
     * `resetForNewSquad` can be `true` or `false`, and defaults to `false`. It only works if the D formation was available at the time you call this function. If true, it will put your trimps in the D formation when the next squad is ready to send, which essentially puts your trimps in Kamikaze mode for max damage.
-    * The formations are specified in numbers rather than letters, so here's the conversion.
+    * `mapHP`, `mapForms`, and `mapSquadReset` are identical in usage to `healthThreshold`, `formations`, and `resetForNewSquad` respectively, but are overrides for use in maps. They will not be used if you do not explicitly pass them in (their default values are empty), in which case the fallback behaviour is that the first three values will be used in maps as well as the world.
+    * The formations are specified in numbers rather than the alpha characters Trimps uses, so here's the conversion.
         * `0` = X, `1` = H, `2` = D, `3` = B, `4` = S, and so on.
     * Usage Examples: 
         * `autoArg.StartStanceDancing(0.25, [2, 0, 1]);` will do a standard D-X-H stancedance and attempt to transition at 25% health.
         * `autoArg.StartStanceDancing(0.125, [2,1], true);` will do a D-H stancedance that transitions at 12.5% health, and automatically kill the squad when the next squad is ready (unless that squad is still in D formation)
         * `autoArg.StartStanceDancing(0.4, [3,0,1], true);` is a max-survivability B-X-H build that falls back to D when the next squad is ready.
+        * `autoArg.StartStanceDancing(0.3, [2,0,1], true, 1, [4], false);` uses the default stancedance in the world for pushing, but uses S in maps for more reliable/profitable farming.
     * **NOTE: This logic is superseded by any Dark Essence Gathering logic that may be running.**
 * `autoArg.StopStanceDancing();`
     * Does what it says!

@@ -9,11 +9,17 @@ class AutoArgStanceDancer {
     private mapRepeatButtonHTML: Element | null;
 
     // Stance Dancing Stuff
-    private isStanceDancing: boolean;
-    private stanceDanceHealthThreshold: number;
-    private stanceDanceFormations: number[];
     private currStanceDanceFormationIndex: number;
-    private resetStanceIfNewSquadIsReady: boolean;
+
+    private isDefaultStanceDancing: boolean;
+    private stanceDanceDefaultHealthThreshold: number;
+    private stanceDanceDefaultFormations: number[];
+    private stanceDanceDefaultSquadFlush: boolean;
+
+    private isMapStanceDancing: boolean;
+    private stanceDanceMapHealthThreshold: number;
+    private stanceDanceMapFormations: number[];
+    private stanceDanceMapSquadFlush: boolean;
 
     constructor() {
         this.stanceDanceRoutine = -1;
@@ -23,44 +29,73 @@ class AutoArgStanceDancer {
         this.gatheringDarkEssence = false;
         this.mapRepeatButtonHTML = document.getElementsByClassName("btn settingBtn0 fightBtn")[1];
 
-        this.isStanceDancing = false;
-        this.stanceDanceHealthThreshold = 0.5;
-        this.stanceDanceFormations = [];
         this.currStanceDanceFormationIndex = 0;
-        this.resetStanceIfNewSquadIsReady = false;
-    }
-    public StartStanceDancing = (healthThreshold: number, formations: number[], resetForNewSquad: boolean = false): string => {
-        // Protect from bad input
-        let newFormations: number[] = [];
-        for(let i: number = 0; i < formations.length; i++) {
-          if(!this.HasFormation(formations[i])) { continue; }
-          newFormations.push(formations[i]);
-        }
-        if(healthThreshold < 0) { healthThreshold = 0; }
-        else if(healthThreshold > 1) { healthThreshold = 1; }
-    
-        // Update values
-        this.stanceDanceHealthThreshold = healthThreshold;
-        this.stanceDanceFormations = newFormations;
-        this.currStanceDanceFormationIndex = 0;
-        this.isStanceDancing = true;
 
-        // Can only 'reset' squads if D is available.
-        this.resetStanceIfNewSquadIsReady = resetForNewSquad && this.HasFormation(2);
+        this.isDefaultStanceDancing = false;
+        this.stanceDanceDefaultHealthThreshold = 0.5;
+        this.stanceDanceDefaultFormations = [];
+        this.stanceDanceDefaultSquadFlush = false;
+
+        this.isMapStanceDancing = false;
+        this.stanceDanceMapHealthThreshold = 0.5;
+        this.stanceDanceMapFormations = [];
+        this.stanceDanceMapSquadFlush = false;
+    }
+    public StartStanceDancing = (healthThreshold: number = 0.5, formations: number[] = [2,0,1], resetForNewSquad: boolean = false, 
+                                mapHealthThreshold: number = 0.5, mapFormations: number[] = [], mapResetForNewSquad: boolean = false): string => {
+        this.currStanceDanceFormationIndex = 0;
+
+        // Protect from bad input
+        let detectedInvalidFormation: boolean = false;
+        const wasAlreadyStanceDancing: boolean = this.stanceDanceRoutine >= 0 && (this.isDefaultStanceDancing || this.isMapStanceDancing);
+        const unlockedD = this.HasFormation(2);
+        
+        let validDefaultFormations: number[] = [];
+        for(let i: number = 0; i < formations.length; i++) {
+          if(!this.HasFormation(formations[i])) { detectedInvalidFormation = true; continue; }
+          validDefaultFormations.push(formations[i]);
+        }
+        this.isDefaultStanceDancing = validDefaultFormations.length > 0;
+        this.stanceDanceDefaultHealthThreshold = Math.max(0, Math.min(1, healthThreshold));
+        this.stanceDanceDefaultFormations = validDefaultFormations;
+        this.stanceDanceDefaultSquadFlush = resetForNewSquad && unlockedD;
+
+        let validMapFormations: number[] = [];
+        for(let i: number = 0; i < mapFormations.length; i++) {
+            if(!this.HasFormation(mapFormations[i])) { detectedInvalidFormation = true; continue; }
+            validMapFormations.push(mapFormations[i]);
+        }
+        this.isMapStanceDancing = validMapFormations.length > 0;
+        this.stanceDanceMapHealthThreshold = mapHealthThreshold;
+        this.stanceDanceMapFormations = validMapFormations;
+        this.stanceDanceMapSquadFlush = mapResetForNewSquad && unlockedD;
 
         // Kick off loop if needed
+        const outputReport: string = (this.stanceDanceRoutine < 0 ? "Now stance dancing " : ("Was already " + (wasAlreadyStanceDancing ? ("stance dancing" + (this.gatheringDarkEssence ? " AND gathering Dark Essence, but now " : ", but now ")) : "gathering Dark Essence, but now ")))
+        + "with default health threshold = " + this.stanceDanceDefaultHealthThreshold 
+        + ", formations = " + this.stanceDanceDefaultFormations.toString() 
+        + ", squadflush = " + this.stanceDanceDefaultSquadFlush
+        + "; " + (!this.isMapStanceDancing ? "doing the exact same on maps." : ("for maps the health threshold = " + this.stanceDanceMapHealthThreshold + ", formations = " + this.stanceDanceMapFormations.toString() + ", squadFlush = " + this.stanceDanceMapSquadFlush));
+
         if(this.stanceDanceRoutine < 0) {
-            this.stanceDanceRoutine = setInterval(this.StanceDanceLogic.bind(this), 100);
+            this.stanceDanceRoutine = setInterval(this.FormationManagingLogic.bind(this), 100);
         }
-        return "Now stance dancing with health threshold set to " + this.stanceDanceHealthThreshold + " and formations to " + this.stanceDanceFormations.toString() + " and " + (this.resetStanceIfNewSquadIsReady ? "KILLING" : "not killing") + " squads when new squad is ready. If you don't have some formations unlocked, you may want to re-call this later when you do!!";
+        return outputReport 
+            + (detectedInvalidFormation ? "... Detected attempted use of unavailable or invalid formations..." : "!")
+            + (!unlockedD ? " Also, you need to have unlocked D to use squad flushing." : "");
       }
     
         public StopStanceDancing = (): string => {
-            this.isStanceDancing = false;
+            this.isDefaultStanceDancing = false;
+            this.isMapStanceDancing = false;
             if(this.gatheringDarkEssence) {
                 return "Not stance-dancing, but still gathering dark essence!";
+            } else {
+                // Break out if not doing anything
+                clearInterval(this.stanceDanceRoutine);
+                this.stanceDanceRoutine = -1;
+                return "No longer stance-dancing, and wasn't gathering essence either, so stopped the whole process!";
             }
-            return "Not stance-dancing!";
         }
     
         public SetDarkEssenceGatherMode = (shouldGather: boolean): string => {
@@ -68,25 +103,25 @@ class AutoArgStanceDancer {
             this.gatheringDarkEssence = shouldGather;
             if(shouldGather) {
                 if(this.stanceDanceRoutine < 0) {
-                    this.stanceDanceRoutine = setInterval(this.StanceDanceLogic.bind(this), 100);
+                    this.stanceDanceRoutine = setInterval(this.FormationManagingLogic.bind(this), 100);
+                    return "Now actively gathering Dark Essence!";
                 }
-                return "Gathering any available Dark Essence!";
+                return "Was already stance-dancing, now also gathering Dark Essence!";
             }
             else {
-                if(this.isStanceDancing) {
+                if(this.isDefaultStanceDancing || this.isMapStanceDancing) {
                     return "Not gathering essence, but still stance-dancing!";
                 }
-                return "Not gathering essence";
+                else {
+                    // Break out if not doing anything
+                    clearInterval(this.stanceDanceRoutine);
+                    this.stanceDanceRoutine = -1;
+                    return "No longer stance-dancing, and wasn't gathering essence either, so stopped the whole process!";
+                }
             }
         }
     
-    public StanceDanceLogic = () => {
-        if(!this.gatheringDarkEssence && !this.isStanceDancing) {
-            // Break out if not doing anything
-            clearInterval(this.stanceDanceRoutine);
-            this.stanceDanceRoutine = -1;
-            return;
-        }
+    public FormationManagingLogic = () => {
         const gameGlobal = game.global;
 
         // Essence-gathering overrides normal stance-dancing.
@@ -105,26 +140,41 @@ class AutoArgStanceDancer {
             }
         }
     
-        if(this.isStanceDancing) {
-            // Squad Ready reset-case
-            if(this.resetStanceIfNewSquadIsReady) {
-                if(game.resources.trimps.realMax() === game.resources.trimps.owned) {
-                    this.currStanceDanceFormationIndex = 0;
-                    setFormation("2");
-                    return;
-                }
-            }
-            // Full Health reset-case
-            if(gameGlobal.soldierHealth == gameGlobal.soldierHealthMax) {
+        if(this.isDefaultStanceDancing || this.isMapStanceDancing) {
+            if(this.isMapStanceDancing && gameGlobal.mapsActive) {
+                // Map-Specific Case (only runs on maps)
+                this.RunStanceDanceLogic(gameGlobal, this.stanceDanceMapHealthThreshold, this.stanceDanceMapFormations, this.stanceDanceMapSquadFlush);
+            } else if(this.isDefaultStanceDancing && !gameGlobal.preMapsActive) {
+                // World/Default Case (does not run in map chamber)
+                this.RunStanceDanceLogic(gameGlobal, this.stanceDanceDefaultHealthThreshold, this.stanceDanceDefaultFormations, this.stanceDanceDefaultSquadFlush);
+            } else if(gameGlobal.preMapsActive) {
+                // Reset index when switching between map and world, but do not mess with formations.
                 this.currStanceDanceFormationIndex = 0;
-                setFormation(this.stanceDanceFormations[this.currStanceDanceFormationIndex].toString());
             }
-            // Cycle through remaining formations as health threshold is reached
-            else if(this.currStanceDanceFormationIndex < this.stanceDanceFormations.length - 1
-                && gameGlobal.soldierHealth <= gameGlobal.soldierHealthMax * this.stanceDanceHealthThreshold) {
-                this.currStanceDanceFormationIndex++;
-                setFormation(this.stanceDanceFormations[this.currStanceDanceFormationIndex].toString());
+        }
+    }
+
+    // Only run this once per frame. A way to avoid duplicate code between maps and default stancedance logic.
+    // THIS MODIFIES this.currStanceDanceFormationIndex.
+    private RunStanceDanceLogic = (gameGlobal: any, healthThreshold: number, formations: number[], flush: boolean): void => {
+        // Squad Ready reset-case
+        if(flush) {
+            if(game.resources.trimps.realMax() === game.resources.trimps.owned) {
+                this.currStanceDanceFormationIndex = 0;
+                setFormation("2");
+                return;
             }
+        }
+        // Full Health reset-case
+        if(gameGlobal.soldierHealth == gameGlobal.soldierHealthMax) {
+            this.currStanceDanceFormationIndex = 0;
+            setFormation(formations[this.currStanceDanceFormationIndex].toString());
+        }
+        // Cycle through remaining formations as health threshold is reached. This stops bothering to check health if we're out of bounds.
+        else if(this.currStanceDanceFormationIndex < formations.length - 1
+            && gameGlobal.soldierHealth <= gameGlobal.soldierHealthMax * healthThreshold) {
+            this.currStanceDanceFormationIndex++;
+            setFormation(formations[this.currStanceDanceFormationIndex].toString());
         }
     }
 

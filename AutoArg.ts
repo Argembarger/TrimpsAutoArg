@@ -119,22 +119,24 @@ class AutoArg {
 
   }
 
-  public StartStanceDancing = (healthThreshold: number = 0.5, formations: number[] = [2,0,1], resetForNewSquad: boolean = false): string => {
-    return this.m_StanceDancer.StartStanceDancing(healthThreshold, formations, resetForNewSquad);
+  public StartStanceDancing = (healthThreshold: number = 0.5, formations: number[] = [2,0,1], resetForNewSquad: boolean = false, mapHP: number = 0.5, mapForms: number[] = [], mapSquadReset: boolean = false): string => {
+    return this.m_StanceDancer.StartStanceDancing(healthThreshold, formations, resetForNewSquad, mapHP, mapForms, mapSquadReset);
   }
 
   public StopStanceDancing = (): string => {
     return this.m_StanceDancer.StopStanceDancing();
   }
   public HelpStanceDancing = (): string => {
-    return "Usages: StartStanceDancing(healthThreshold, formations, resetForNewSquad); StopStanceDancing();\n"
+    return "Usages: StartStanceDancing(healthThreshold, formations, resetForNewSquad, mapHP, mapForms, mapSquadReset); StopStanceDancing();\n"
     + "Note that autoArg prioritizes Dark Essence gathing over Stance Dancing.\n"
     + "You can leave everything out and just call autoArg.StartStanceDancing(); It will use default values. It's not polymorphic though so you'll have to declare any variables up to and including the one you want.\n"
     + "All values can also be passed in as null, which will use either a default or a pre-existing value.\n"
     + "healthThreshold is a number between 0 and 1 telling it how hurt you want your trimps to be to move to the next stance. Default is 0.5.\n"
     + "formations is an array of numbers relating to your formations. 0 = X, 1 = H, 2 = D, 3 = B, 4 = S, 5 = N, etc. Default is [2,0,1], D, X, H.\n"
     + "resetForNewSquad can be true or false, and if true will switch to D when a new squad is ready.\n"
-    + "Some examples: autoArg.StartStanceDancing(0.333, [3,0,1], true); autoArg.StartStanceDancing(); autoArg.StartStanceDancing(0.8, [2,3], true)";
+    + "Some examples: autoArg.StartStanceDancing(0.333, [3,0,1], true); autoArg.StartStanceDancing(); autoArg.StartStanceDancing(0.8, [2,3], true)\n"
+    + "The map variables at the end are identical in usage but only apply while running maps. If they are not defined, it will use the default values for maps AND world.\n"
+    + "You can set this up to use one set of stances in the world for pushing, and a different one in maps for farming.";
   }
 
   public StartGatheringDarkEssence = (): string => {

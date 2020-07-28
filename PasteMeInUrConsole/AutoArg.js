@@ -136,7 +136,7 @@ var AutoBoner = /** @class */ (function () {
             }
             else if (!gameGlobal.preMapsActive) { // WE ARE IN MAPS.
                 // Status of 'repeat until' state
-                var currStatus = (_this.mapRepeatButtonHTML ? _this.mapRepeatButtonHTML.textContent ? _this.mapRepeatButtonHTML.textContent.toLowerCase() : undefined : undefined);
+                var currStatus = (_this.mapRepeatButtonHTML ? _this.mapRepeatButtonHTML.innerHTML ? _this.mapRepeatButtonHTML.innerHTML.toLowerCase() : undefined : undefined);
                 // No matter what, if you are actively trying to abandon, then we don't want to run logic here.
                 if (!gameGlobal.switchToMaps) {
                     if (_this.WouldLikeToReturnToWorld(secondsSinceLastBone, secondsInZone)) {
@@ -257,7 +257,7 @@ var AutoBoner = /** @class */ (function () {
         // weapons
         this.farmingForWeapons = false;
         // dependent HTMLs (which are not guaranteed)
-        this.mapRepeatButtonHTML = document.getElementsByClassName("btn settingBtn0 fightBtn")[1];
+        this.mapRepeatButtonHTML = document.getElementById("togglerepeatUntil");
     }
     // If on the specified world-zone, and at or beyond the specified world cell, go to the map chamber and return true. Otherwiser return false.
     AutoBoner.prototype.GoToMapOnOrAfterZoneAndCell = function (_zone, _cell) {
@@ -392,7 +392,7 @@ var AutoArgStanceDancer = /** @class */ (function () {
             var gameGlobal = game.global;
             // Essence-gathering overrides normal stance-dancing.
             // Only applies if we aren't in maps, and are world 180 or above. (180 won't have drops but we want to prepare for 181.)
-            var currStatus = (_this.mapRepeatButtonHTML ? _this.mapRepeatButtonHTML.textContent ? _this.mapRepeatButtonHTML.textContent.toLowerCase() : undefined : undefined);
+            var currStatus = (_this.mapRepeatButtonHTML ? _this.mapRepeatButtonHTML.innerHTML ? _this.mapRepeatButtonHTML.innerHTML.toLowerCase() : undefined : undefined);
             if (_this.gatheringDarkEssence && gameGlobal.world > 179
                 && (!gameGlobal.mapsActive
                     || (gameGlobal.mapsActive && (gameGlobal.switchToMaps || (currStatus != undefined && currStatus !== "repeat forever"))))) {
@@ -453,7 +453,7 @@ var AutoArgStanceDancer = /** @class */ (function () {
         this.badGuyHealthHTML = document.getElementById("badGuyHealth");
         this.badGuyHealthMaxHTML = document.getElementById("badGuyHealthMax");
         this.gatheringDarkEssence = false;
-        this.mapRepeatButtonHTML = document.getElementsByClassName("btn settingBtn0 fightBtn")[1];
+        this.mapRepeatButtonHTML = document.getElementById("togglerepeatUntil");
         this.currStanceDanceFormationIndex = 0;
         this.isDefaultStanceDancing = false;
         this.stanceDanceDefaultHealthThreshold = 0.5;

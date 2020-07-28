@@ -38,7 +38,7 @@ class AutoBoner {
         this.farmingForWeapons = false;
 
         // dependent HTMLs (which are not guaranteed)
-        this.mapRepeatButtonHTML = document.getElementsByClassName("btn settingBtn0 fightBtn")[1];
+        this.mapRepeatButtonHTML = document.getElementById("togglerepeatUntil");
     }
 
     public StartBoneFarming = (farmOnMaps: boolean | null = null, mapPresets: number[] | null = null, kob2: boolean | null = null, extraMins: number | null = null): string => {
@@ -174,7 +174,7 @@ class AutoBoner {
             }
         } else if(!gameGlobal.preMapsActive) {// WE ARE IN MAPS.
             // Status of 'repeat until' state
-            const currStatus: string | undefined = (this.mapRepeatButtonHTML ? this.mapRepeatButtonHTML.textContent ? this.mapRepeatButtonHTML.textContent.toLowerCase() : undefined : undefined);
+            const currStatus: string | undefined = (this.mapRepeatButtonHTML ? this.mapRepeatButtonHTML.innerHTML ? this.mapRepeatButtonHTML.innerHTML.toLowerCase() : undefined : undefined);
 
             // No matter what, if you are actively trying to abandon, then we don't want to run logic here.
             if(!gameGlobal.switchToMaps) {

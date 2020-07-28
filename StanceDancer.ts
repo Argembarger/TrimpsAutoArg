@@ -27,7 +27,7 @@ class AutoArgStanceDancer {
         this.badGuyHealthMaxHTML = document.getElementById("badGuyHealthMax");
 
         this.gatheringDarkEssence = false;
-        this.mapRepeatButtonHTML = document.getElementsByClassName("btn settingBtn0 fightBtn")[1];
+        this.mapRepeatButtonHTML = document.getElementById("togglerepeatUntil");
 
         this.currStanceDanceFormationIndex = 0;
 
@@ -126,7 +126,7 @@ class AutoArgStanceDancer {
 
         // Essence-gathering overrides normal stance-dancing.
         // Only applies if we aren't in maps, and are world 180 or above. (180 won't have drops but we want to prepare for 181.)
-        const currStatus: string | undefined = (this.mapRepeatButtonHTML ? this.mapRepeatButtonHTML.textContent ? this.mapRepeatButtonHTML.textContent.toLowerCase() : undefined : undefined)
+        const currStatus: string | undefined = (this.mapRepeatButtonHTML ? this.mapRepeatButtonHTML.innerHTML ? this.mapRepeatButtonHTML.innerHTML.toLowerCase() : undefined : undefined)
         if(this.gatheringDarkEssence && gameGlobal.world > 179
             && (!gameGlobal.mapsActive 
                 || (gameGlobal.mapsActive && (gameGlobal.switchToMaps || (currStatus != undefined && currStatus !== "repeat forever")))) ) {

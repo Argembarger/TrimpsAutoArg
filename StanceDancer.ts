@@ -3,6 +3,7 @@ class AutoArgStanceDancer {
     private stanceDanceRoutine: number;
     private badGuyHealthHTML: HTMLElement | null;
     private badGuyHealthMaxHTML: HTMLElement | null;
+    private giveUpOnBadGuyHealth: boolean = false;
 
     // DE Farming Stuff
     private gatheringDarkEssence: boolean;
@@ -185,8 +186,18 @@ class AutoArgStanceDancer {
         return (formDisp != null && formDisp != undefined && formDisp !== ""); // formDisp would be "block" if it's available.
     }
 
+    // Check remaining percentage of bad guy health.
+    // Retry getting bad guy health once, in case something wasn't ready during construction.
+    // Assume 0% if we don't know, so that dark essence gathering plays it safe.
     private BadGuyCurrentHealthRatio = (): number => {
-        if(this.badGuyHealthHTML == null || this.badGuyHealthMaxHTML == null) {return 1.0;}
+        if(this.badGuyHealthHTML == null || this.badGuyHealthMaxHTML == null) {
+            if(!this.giveUpOnBadGuyHealth) {
+                this.badGuyHealthHTML = document.getElementById("badGuyHealth");
+                this.badGuyHealthMaxHTML = document.getElementById("badGuyHealthMax");
+                this.giveUpOnBadGuyHealth = true;
+            }
+            return 0.0;
+        }
         return (Number(this.badGuyHealthHTML.innerHTML) / Number(this.badGuyHealthMaxHTML.innerHTML));
     }
 }

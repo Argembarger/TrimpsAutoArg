@@ -302,6 +302,7 @@ var AutoBoner = /** @class */ (function () {
 var AutoArgStanceDancer = /** @class */ (function () {
     function AutoArgStanceDancer() {
         var _this = this;
+        this.giveUpOnBadGuyHealth = false;
         this.StartStanceDancing = function (healthThreshold, formations, resetForNewSquad, mapHealthThreshold, mapFormations, mapResetForNewSquad) {
             if (healthThreshold === void 0) { healthThreshold = 0.5; }
             if (formations === void 0) { formations = [2, 0, 1]; }
@@ -443,9 +444,17 @@ var AutoArgStanceDancer = /** @class */ (function () {
                 setFormation(formations[_this.currStanceDanceFormationIndex].toString());
             }
         };
+        // Check remaining percentage of bad guy health.
+        // Retry getting bad guy health once, in case something wasn't ready during construction.
+        // Assume 0% if we don't know, so that dark essence gathering plays it safe.
         this.BadGuyCurrentHealthRatio = function () {
             if (_this.badGuyHealthHTML == null || _this.badGuyHealthMaxHTML == null) {
-                return 1.0;
+                if (!_this.giveUpOnBadGuyHealth) {
+                    _this.badGuyHealthHTML = document.getElementById("badGuyHealth");
+                    _this.badGuyHealthMaxHTML = document.getElementById("badGuyHealthMax");
+                    _this.giveUpOnBadGuyHealth = true;
+                }
+                return 0.0;
             }
             return (Number(_this.badGuyHealthHTML.innerHTML) / Number(_this.badGuyHealthMaxHTML.innerHTML));
         };
